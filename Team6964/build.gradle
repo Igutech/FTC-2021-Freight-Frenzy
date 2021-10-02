@@ -15,4 +15,9 @@ dependencies {
      * Other Modules
      */
     implementation project(':FtcRobotController')
+    implementation 'org.openftc:easyopencv:1.5.0'
+    implementation 'com.acmerobotics.roadrunner:core:0.5.3'
+    implementation('com.acmerobotics.dashboard:dashboard:0.4.3') {
+        exclude group: 'org.firstinspires.ftc'
+    }
 }
