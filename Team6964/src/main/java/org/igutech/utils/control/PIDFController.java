@@ -1,5 +1,6 @@
 package org.igutech.utils.control;
 
+
 import org.apache.commons.math3.util.FastMath;
 
 /**
