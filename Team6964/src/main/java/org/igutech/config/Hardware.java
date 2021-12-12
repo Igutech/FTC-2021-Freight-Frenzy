@@ -2,6 +2,7 @@ package org.igutech.config;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -32,41 +33,23 @@ public class Hardware {
         motors.put("frontright", hardwareMap.dcMotor.get("frontright"));
         motors.put("backleft", hardwareMap.dcMotor.get("backleft"));
         motors.put("backright", hardwareMap.dcMotor.get("backright"));
-        motors.put("shooter", hardwareMap.dcMotor.get("shooter"));
-
-        motors.put("intake", hardwareMap.dcMotor.get("intake"));
-        motors.put("intake2", hardwareMap.dcMotor.get("intake2"));
-
-        //CRservos.put("intakeServo",hardwareMap.crservo.get("intakeServo"));
-
-        servos.put("liftServo",hardwareMap.servo.get("liftServo"));
-        servos.put("shooterServo1",hardwareMap.servo.get("shooterServo1"));
-        servos.put("shooterServo2",hardwareMap.servo.get("shooterServo2"));
-        servos.put("releaseLiftServo",hardwareMap.servo.get("releaseLiftServo"));
-        servos.put("wobbleGoalLift",hardwareMap.servo.get("wobbleGoalLift"));
-        servos.put("wobbleGoalServo",hardwareMap.servo.get("wobbleGoalServo"));
+        
 
         motors.get("frontright").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motors.get("frontleft").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motors.get("backright").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motors.get("backleft").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+//        motors.get("frontright").setDirection(DcMotorSimple.Direction.REVERSE);
+//        motors.get("frontleft").setDirection(DcMotorSimple.Direction.REVERSE);
+        motors.get("backright").setDirection(DcMotorSimple.Direction.REVERSE);
+        motors.get("backleft").setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         motors.get("frontright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("frontleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("backright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("backleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-
-
-
-
-/*        touchSensors.put("BeamBreaker",hardwareMap.get(DigitalChannel.class, "beam"));
-        touchSensors.get("BeamBreaker").setMode(DigitalChannel.Mode.INPUT);
-
-        touchSensors.put("elevator_switch", hardwareMap.get(DigitalChannel.class, "elevator_switch"));
-        touchSensors.get("elevator_switch").setMode(DigitalChannel.Mode.INPUT);*/
 
     }
 
