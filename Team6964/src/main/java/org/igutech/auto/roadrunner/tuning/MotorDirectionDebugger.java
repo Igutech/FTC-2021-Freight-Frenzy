@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.igutech.auto.roadrunner.SampleMecanumDrive;
 
 /**
@@ -38,7 +39,6 @@ import org.igutech.auto.roadrunner.SampleMecanumDrive;
  *
  * Uncomment the @Disabled tag below to use this opmode.
  */
-@Disabled
 @Config
 @TeleOp(group = "drive")
 public class MotorDirectionDebugger extends LinearOpMode {
@@ -73,20 +73,29 @@ public class MotorDirectionDebugger extends LinearOpMode {
             if(gamepad1.x) {
                 drive.setMotorPowers(MOTOR_POWER, 0, 0, 0);
                 telemetry.addLine("Running Motor: Front Left");
+                telemetry.addData("Running Motor Front Left Velo: ",drive.getLeftFront().getVelocity());
+                telemetry.addData("Voltage: ",                drive.getLeftRear().getCurrent(CurrentUnit.MILLIAMPS));
             } else if(gamepad1.y) {
                 drive.setMotorPowers(0, 0, 0, MOTOR_POWER);
                 telemetry.addLine("Running Motor: Front Right");
+                telemetry.addData("Running Motor: Front Right Velo: ",drive.getRightFront().getVelocity());
+                telemetry.addData("Voltage: ",                drive.getLeftRear().getCurrent(CurrentUnit.MILLIAMPS));
+
             } else if(gamepad1.b) {
                 drive.setMotorPowers(0, 0, MOTOR_POWER, 0);
                 telemetry.addLine("Running Motor: Rear Right");
+                telemetry.addData("Running Motor: Rear Right Velo: ",drive.getRightRear().getVelocity());
+                telemetry.addData("Voltage: ",                drive.getLeftRear().getCurrent(CurrentUnit.MILLIAMPS));
+
             } else if(gamepad1.a) {
                 drive.setMotorPowers(0, MOTOR_POWER, 0, 0);
                 telemetry.addLine("Running Motor: Rear Left");
+                telemetry.addData("Running Motor: Rear Left Velo: ", drive.getLeftRear().getVelocity());
+                telemetry.addData("Voltage: ",                drive.getLeftRear().getCurrent(CurrentUnit.MILLIAMPS));
             } else {
                 drive.setMotorPowers(0, 0, 0, 0);
                 telemetry.addLine("Running Motor: None");
             }
-
             telemetry.update();
         }
     }
