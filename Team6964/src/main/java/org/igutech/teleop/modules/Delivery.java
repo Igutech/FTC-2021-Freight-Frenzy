@@ -30,6 +30,8 @@ public class Delivery extends Module {
         Teleop.getInstance().telemetry.addData("Power ",power);
         if(enable){
             Teleop.getInstance().getHardware().getMotors().get("delivery").setPower(power);
+        }else{
+            Teleop.getInstance().getHardware().getMotors().get("delivery").setPower(0.0);
         }
 
     }
