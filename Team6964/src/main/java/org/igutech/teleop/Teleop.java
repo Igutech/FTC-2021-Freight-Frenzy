@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.igutech.config.Hardware;
 import org.igutech.teleop.modules.BulkRead;
+import org.igutech.teleop.modules.Delivery;
 import org.igutech.teleop.modules.DisconnectWorkaround;
 import org.igutech.teleop.modules.DriveTrain;
 import org.igutech.teleop.modules.GamepadService;
@@ -35,6 +36,7 @@ public class Teleop extends OpMode {
     private void registerModules() {
 
         modules.add(new DriveTrain());
+        modules.add(new Delivery());
     }
 
     private void registerServices() {

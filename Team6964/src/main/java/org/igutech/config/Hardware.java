@@ -33,7 +33,8 @@ public class Hardware {
         motors.put("frontright", hardwareMap.dcMotor.get("frontright"));
         motors.put("backleft", hardwareMap.dcMotor.get("backleft"));
         motors.put("backright", hardwareMap.dcMotor.get("backright"));
-        
+        motors.put("delivery", hardwareMap.dcMotor.get("delivery"));
+
 
         motors.get("frontright").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motors.get("frontleft").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
