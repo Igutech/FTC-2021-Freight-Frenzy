@@ -34,6 +34,7 @@ public class Hardware {
         motors.put("backleft", hardwareMap.dcMotor.get("backleft"));
         motors.put("backright", hardwareMap.dcMotor.get("backright"));
         motors.put("delivery", hardwareMap.dcMotor.get("delivery"));
+        motors.put("intake", hardwareMap.dcMotor.get("intake"));
 
 
         motors.get("frontright").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -52,6 +53,7 @@ public class Hardware {
         motors.get("backright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("backleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        servos.put("deliveryServo",hardwareMap.servo.get("deliveryServo"));
     }
 
     /**
