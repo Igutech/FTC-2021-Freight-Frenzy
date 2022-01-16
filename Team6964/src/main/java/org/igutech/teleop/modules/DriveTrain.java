@@ -32,9 +32,9 @@ public class DriveTrain extends Module {
     @Override
     public void loop() {
 
-        double vD = FastMath.hypot(-gamepadService.getAnalog(1, "right_stick_x"),
+        double vD = FastMath.hypot(gamepadService.getAnalog(1, "right_stick_x"),
                 -gamepadService.getAnalog(1, "right_stick_y"));
-        double thetaD = Math.atan2(gamepadService.getAnalog(1, "right_stick_x"),
+        double thetaD = Math.atan2(-gamepadService.getAnalog(1, "right_stick_x"),
                 gamepadService.getAnalog(1, "right_stick_y")) + FastMath.PI / 4;
 
         double vTheta = -gamepadService.getAnalog(1, "left_stick_x");
