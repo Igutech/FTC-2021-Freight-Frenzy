@@ -22,6 +22,14 @@ public class ButtonToggle {
         this.action2 = action2;
     }
 
+
+    public ButtonToggle(int gamepadNumber, String button, Callback action1) {
+        this.gamepadNumber = gamepadNumber;
+        this.button = button;
+        this.action1 = action1;
+        this.action2 = action1;
+    }
+
     public void init() {
         gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
     }
