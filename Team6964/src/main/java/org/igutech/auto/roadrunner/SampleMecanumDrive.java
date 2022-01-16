@@ -91,13 +91,12 @@ public class SampleMecanumDrive extends MecanumDrive {
         // upward (normal to the floor) using a command like the following:
         // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "backleft");
-        leftRear = hardwareMap.get(DcMotorEx.class, "frontleft");
-        rightRear = hardwareMap.get(DcMotorEx.class, "frontright");
-        rightFront = hardwareMap.get(DcMotorEx.class, "backright");
+        leftFront = hardwareMap.get(DcMotorEx.class, "frontleft");
+        leftRear = hardwareMap.get(DcMotorEx.class, "backleft");
+        rightRear = hardwareMap.get(DcMotorEx.class, "backright");
+        rightFront = hardwareMap.get(DcMotorEx.class, "frontright");
 
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         for (DcMotorEx motor : motors) {
@@ -117,7 +116,9 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-
+        //leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+       rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
 
