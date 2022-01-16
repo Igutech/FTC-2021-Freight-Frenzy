@@ -1,5 +1,6 @@
 package org.igutech.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,6 +12,7 @@ import org.igutech.teleop.modules.DisconnectWorkaround;
 import org.igutech.teleop.modules.DriveTrain;
 import org.igutech.teleop.modules.GamepadService;
 import org.igutech.teleop.modules.Intake;
+import org.igutech.teleop.modules.Spinner;
 import org.igutech.teleop.modules.TimerService;
 
 
@@ -39,12 +41,14 @@ public class Teleop extends OpMode {
         modules.add(new DriveTrain());
         modules.add(new Delivery());
         modules.add(new Intake());
+        modules.add(new Spinner());
     }
 
     private void registerServices() {
         modules.add(new DisconnectWorkaround());
         modules.add(new GamepadService(gamepad1, gamepad2));
         modules.add(new BulkRead());
+        modules.add(new TimerService());
     }
 
     /**
@@ -176,6 +180,8 @@ public class Teleop extends OpMode {
             elapsedTime.reset();
             loops = 0;
         }
+        FtcDashboard.getInstance().getTelemetry().update();
+
     }
 
     @Override
