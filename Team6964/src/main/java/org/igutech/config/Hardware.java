@@ -56,6 +56,7 @@ public class Hardware {
         motors.get("backleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         servos.put("deliveryServo",hardwareMap.servo.get("deliveryServo"));
+        servos.put("holderServo",hardwareMap.servo.get("holderServo"));
     }
 
     /**
