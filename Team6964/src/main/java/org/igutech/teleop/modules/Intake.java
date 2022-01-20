@@ -13,17 +13,18 @@ import java.util.HashMap;
 
 @Config
 public class Intake extends Module {
-    public static double p = 0.001;
+    public static double p = 0.008;
     public static double i = 0;
-    public static double d = 0;
-    public static double f = 0;
-    public static double maxPower = 0.5;
+    public static double d = 0.00013;
+    public static double f = 0.0007;
+    public static double maxPower = 0.9;
+    public static double highPosition = 160;
     private GamepadService gamepadService;
     private ButtonToggle buttonToggle;
-    private ButtonToggle safety;
     private IntakeState state = IntakeState.OFF;
     private HashMap<Integer, Integer> positions;
     private PIDFController controller;
+    private TimerService timerService;
 
     public Intake() {
         super(700, "Intake");
@@ -32,20 +33,22 @@ public class Intake extends Module {
     @Override
     public void init() {
         gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
-        buttonToggle = new ButtonToggle(1, "left_bumper", () -> state=IntakeState.UP, () -> {
-            state=IntakeState.DOWN;
+        timerService = (TimerService) Teleop.getInstance().getService("TimerService");
+
+        buttonToggle = new ButtonToggle(1, "left_bumper", () -> {
+            state = IntakeState.UP;
+            timerService.registerUniqueTimerEvent(500, "activateIntake", () -> Teleop.getInstance().getHardware().getMotors().get("intake").setPower(-1));
+        }, () -> {
+            state = IntakeState.DOWN;
         });
         buttonToggle.init();
         positions = new HashMap<>();
         positions.put(0, 0);
         positions.put(1, 0);
-        positions.put(2, 130);
+        positions.put(2, 160);
         controller = new PIDFController(p, i, d, f);
         controller.init();
-        safety = new ButtonToggle(1, "a", () -> {
-        }, () -> {
-        });
-        safety.init();
+
 
     }
 
@@ -58,11 +61,6 @@ public class Intake extends Module {
     @Override
     public void loop() {
 
-        double po = gamepadService.getAnalog(2,"right_stick_y");
-        Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(po);
-
-         Teleop.getInstance().telemetry.addData("SETTING intake lift POWER ", po);
-
         controller.setPIDFValues(p, i, d, f);
         controller.updateSetpoint(positions.get(state.value));
         double currentPos = Teleop.getInstance().getHardware().getMotors().get("intakeLift").getCurrentPosition();
@@ -72,28 +70,39 @@ public class Intake extends Module {
             power = Math.max(power, 0.5);
         }
         power = power * -1;
-        Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
+        if(state==IntakeState.OFF){
+            //Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
+            //Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
+            Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
+        }
 
 
-        Teleop.getInstance().telemetry.addData("Is Enabled ", safety.getState());
-        Teleop.getInstance().telemetry.addData("Position ", currentPos);
-        Teleop.getInstance().telemetry.addData("Target ", targetPosition);
-        Teleop.getInstance().telemetry.addData("Current State ", state);
+
         switch (state) {
             case UP:
-            case DOWN:
+                targetPosition = highPosition;
                 updatePID(targetPosition, currentPos);
-                if (Math.abs(currentPos - targetPosition) <= 15) {
-                    state = IntakeState.OFF;
-                }
+                break;
+            case DOWN:
+                Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(0);
+                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(0);
+                timerService.registerUniqueTimerEvent(500,"activateHolderServo",()->Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.65));
+                state = IntakeState.OFF;
                 break;
             case OFF:
-                Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(0);
                 break;
 
         }
         buttonToggle.loop();
-        safety.loop();
+
+        Teleop.getInstance().telemetry.addData("Intake Position ", currentPos);
+        Teleop.getInstance().telemetry.addData("Intake Target ", targetPosition);
+        Teleop.getInstance().telemetry.addData("Current State ", state);
+
+        FtcDashboard.getInstance().getTelemetry().addData("Intake Position", currentPos);
+        FtcDashboard.getInstance().getTelemetry().addData("Intake Target  ", targetPosition);
+        FtcDashboard.getInstance().getTelemetry().addData("Current Intake State ", state);
+
     }
 
     private void updatePID(double targetPosition, double currentPosition) {
@@ -102,13 +111,10 @@ public class Intake extends Module {
         pow = Math.min(pow, maxPower);
         pow = Math.max(pow, -1 * maxPower);
 
-        if (safety.getState()) {
-            Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(pow);
-        } else {
-            Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(0.0);
-        }
-        Teleop.getInstance().telemetry.addData("Power ", pow);
-        FtcDashboard.getInstance().getTelemetry().addData("Power ", pow);
+        Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(pow);
+
+        Teleop.getInstance().telemetry.addData("Intake Power ", pow);
+        FtcDashboard.getInstance().getTelemetry().addData("Intake Power ", pow);
 
     }
 
