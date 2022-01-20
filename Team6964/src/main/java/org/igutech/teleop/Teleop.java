@@ -12,6 +12,7 @@ import org.igutech.teleop.modules.DisconnectWorkaround;
 import org.igutech.teleop.modules.DriveTrain;
 import org.igutech.teleop.modules.GamepadService;
 import org.igutech.teleop.modules.Intake;
+import org.igutech.teleop.modules.IntakeDeliver;
 import org.igutech.teleop.modules.Spinner;
 import org.igutech.teleop.modules.TimerService;
 
@@ -42,6 +43,7 @@ public class Teleop extends OpMode {
         modules.add(new Delivery());
         modules.add(new Intake());
         modules.add(new Spinner());
+        modules.add(new IntakeDeliver());
     }
 
     private void registerServices() {
