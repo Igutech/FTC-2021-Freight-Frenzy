@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.internal.tfod.Timer;
 import org.igutech.config.Hardware;
 import org.igutech.teleop.modules.BulkRead;
 import org.igutech.teleop.modules.Delivery;
@@ -31,16 +32,15 @@ public class Teleop extends OpMode {
     }
 
     private ArrayList<Module> modules;
-    private TimerService timerService;
 
     private Hardware hardware;
     private ElapsedTime elapsedTime;
     private int loops = 0;
-
+    private TimerService timerService = new TimerService();
     private void registerModules() {
 
         modules.add(new DriveTrain());
-        modules.add(new Delivery());
+        modules.add(new Delivery(hardware,true));
         modules.add(new Intake());
         modules.add(new Spinner());
         modules.add(new IntakeDeliver());
@@ -50,7 +50,7 @@ public class Teleop extends OpMode {
         modules.add(new DisconnectWorkaround());
         modules.add(new GamepadService(gamepad1, gamepad2));
         modules.add(new BulkRead());
-        modules.add(new TimerService());
+        modules.add(timerService);
     }
 
     /**
@@ -132,7 +132,7 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         instance = this;
-        hardware = new Hardware(hardwareMap);
+        hardware = new Hardware(hardwareMap,true);
         modules = new ArrayList<>();
         timerService = new TimerService();
         registerModules();

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.igutech.config.Hardware;
 import org.igutech.teleop.Module;
 import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
@@ -19,34 +20,44 @@ public class Delivery extends Module {
     private ButtonToggle middleToggle;
     private ButtonToggle lowToggle;
     private PIDFController controller;
+    private Hardware hardware;
     public static double p = 0.005;
     public static double i = 0;
     public static double d = 0;
     public static double f = 0;
     public static double maxPower = 0.8;
+    private boolean teleop;
 
-    public Delivery() {
+    public Delivery(Hardware hardware, boolean teleop) {
+
         super(500, "Delivery");
+        this.hardware = hardware;
+        this.teleop = teleop;
     }
 
     HashMap<Integer, Integer> position;
-    private State extendState = State.HIGH;
-    private State currentState = State.OFF;
+    private DeliveryState extendDeliveryState = DeliveryState.HIGH;
+    private DeliveryState currentDeliveryState = DeliveryState.OFF;
     public static int targetPosition;
     public static int marginError = 280;
 
     @Override
     public void init() {
         controller = new PIDFController(p, i, d, f);
-        gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
-        timerService = (TimerService) Teleop.getInstance().getService("TimerService");
-        highToggle = new ButtonToggle(1, "dpad_up", () -> extendState = State.HIGH, () -> extendState = State.HIGH);
-        middleToggle = new ButtonToggle(1, "dpad_left", () -> extendState = State.MIDDLE, () -> extendState = State.MIDDLE);
-        lowToggle = new ButtonToggle(1, "dpad_down", () -> extendState = State.LOW, () -> extendState = State.LOW);
+        if (teleop) {
+            gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
+            timerService = (TimerService) Teleop.getInstance().getService("TimerService");
+            highToggle = new ButtonToggle(1, "dpad_up", () -> extendDeliveryState = DeliveryState.HIGH, () -> extendDeliveryState = DeliveryState.HIGH);
+            middleToggle = new ButtonToggle(1, "dpad_left", () -> extendDeliveryState = DeliveryState.MIDDLE, () -> extendDeliveryState = DeliveryState.MIDDLE);
+            lowToggle = new ButtonToggle(1, "dpad_down", () -> extendDeliveryState = DeliveryState.LOW, () -> extendDeliveryState = DeliveryState.LOW);
 
-        highToggle.init();
-        middleToggle.init();
-        lowToggle.init();
+            highToggle.init();
+            middleToggle.init();
+            lowToggle.init();
+            hardware.getServos().get("deliveryServo").setPosition(0.73);
+            hardware.getServos().get("holderServo").setPosition(0.36);
+        }
+
         position = new HashMap<>();
         position.put(-1, 0);
         position.put(0, 0);
@@ -54,36 +65,37 @@ public class Delivery extends Module {
         position.put(2, -500);
         position.put(3, -310);
         controller.init();
-        Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
-        Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
+
 
     }
 
     @Override
     public void start() {
-        Teleop.getInstance().getHardware().getMotors().get("delivery").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Teleop.getInstance().getHardware().getMotors().get("delivery").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
     public void loop() {
         controller.setPIDFValues(p, i, d, f);
-        targetPosition = position.get(currentState.value);
-        double currentPos = Teleop.getInstance().getHardware().getMotors().get("delivery").getCurrentPosition();
-        switch (currentState) {
+        targetPosition = position.get(currentDeliveryState.value);
+        double currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
+        switch (currentDeliveryState) {
             case LOW:
             case MIDDLE:
             case HIGH:
+                System.out.println("running delivery high");
                 updatePID(targetPosition, currentPos);
                 break;
             case WAITING:
                 if (Math.abs(currentPos - targetPosition) <= marginError) {
-                    currentState = State.OFF;
+                    currentDeliveryState = DeliveryState.OFF;
                 }
                 updatePID(targetPosition, currentPos);
                 break;
             case OFF:
-                Teleop.getInstance().getHardware().getMotors().get("delivery").setPower(0.0);
+                hardware.getMotors().get("delivery").setPower(0.0);
+
                 break;
 
         }
@@ -91,40 +103,49 @@ public class Delivery extends Module {
 
         //Teleop.getInstance().telemetry.addData("Delivery Position ", currentPos);
         //Teleop.getInstance().telemetry.addData("Delivery Target ", targetPosition);
-        Teleop.getInstance().telemetry.addData("Current Delivery State ", currentState);
-        Teleop.getInstance().telemetry.addData("Extend Delivery State ", extendState);
+
 
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Position ", currentPos);
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Target ", targetPosition);
-        FtcDashboard.getInstance().getTelemetry().addData("Delivery Current State ", currentState);
-        FtcDashboard.getInstance().getTelemetry().addData("Delivery Extend State ", extendState);
+        FtcDashboard.getInstance().getTelemetry().addData("Delivery Current State ", currentDeliveryState);
+        FtcDashboard.getInstance().getTelemetry().addData("Delivery Extend State ", extendDeliveryState);
 
+        if (teleop) {
+            highToggle.loop();
+            middleToggle.loop();
+            lowToggle.loop();
+            Teleop.getInstance().telemetry.addData("Current Delivery State ", currentDeliveryState);
+            Teleop.getInstance().telemetry.addData("Extend Delivery State ", extendDeliveryState);
+        }
 
-        highToggle.loop();
-        middleToggle.loop();
-        lowToggle.loop();
     }
-    public void setDeliveryStatus(boolean status){
-        if(status){
-            currentState = extendState;
-        }else{
-            currentState=State.WAITING;
+
+    public void setCurrentDeliveryState(DeliveryState currentDeliveryState) {
+        this.currentDeliveryState = currentDeliveryState;
+    }
+
+    public void setDeliveryStatus(boolean status) {
+        if (status) {
+            currentDeliveryState = extendDeliveryState;
+        } else {
+            currentDeliveryState = DeliveryState.WAITING;
         }
     }
+
     private void updatePID(double targetPosition, double currentPosition) {
         controller.updateSetpoint(targetPosition);
         double pow = controller.update(currentPosition);
         pow = Math.min(pow, maxPower);
         pow = Math.max(pow, -1 * maxPower);
 
-        Teleop.getInstance().getHardware().getMotors().get("delivery").setPower(pow);
+        hardware.getMotors().get("delivery").setPower(pow);
 
         //Teleop.getInstance().telemetry.addData("Delivery Power ", pow);
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Power ", pow);
 
     }
 
-    private enum State {
+    public enum DeliveryState {
         HIGH(3),
         MIDDLE(2),
         LOW(1),
@@ -132,8 +153,12 @@ public class Delivery extends Module {
         OFF(-1);
         public int value;
 
-        State(int value) {
+        DeliveryState(int value) {
             this.value = value;
         }
+    }
+
+    public DeliveryState getCurrentDeliveryState() {
+        return currentDeliveryState;
     }
 }
