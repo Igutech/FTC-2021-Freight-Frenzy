@@ -126,6 +126,11 @@ public class Intake extends Module {
         this.intakeState = intakeState;
     }
 
+    public IntakeState getIntakeState() {
+        return intakeState;
+    }
+
+
     public void setIntakeLiftState(boolean on) {
         if (on) {
             intakeLiftState = IntakeLiftState.UP;
