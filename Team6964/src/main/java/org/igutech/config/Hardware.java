@@ -23,7 +23,7 @@ public class Hardware {
      *
      * @param hardwareMap Hardware map provided by FIRST
      */
-    public Hardware(HardwareMap hardwareMap) {
+    public Hardware(HardwareMap hardwareMap, boolean teleop) {
         this.hardwareMap = hardwareMap;
         this.motors = new HashMap<>();
         this.servos = new HashMap<>();
@@ -46,8 +46,12 @@ public class Hardware {
 
 //        motors.get("frontright").setDirection(DcMotorSimple.Direction.REVERSE);
 //        motors.get("frontleft").setDirection(DcMotorSimple.Direction.REVERSE);
-        motors.get("backright").setDirection(DcMotorSimple.Direction.REVERSE);
-        motors.get("backleft").setDirection(DcMotorSimple.Direction.REVERSE);
+
+        if(teleop){
+            motors.get("backright").setDirection(DcMotorSimple.Direction.REVERSE);
+            motors.get("backleft").setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+
 
 
         motors.get("frontright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
