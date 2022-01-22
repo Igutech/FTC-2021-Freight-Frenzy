@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 
 import org.igutech.teleop.Module;
 import org.igutech.teleop.Teleop;
+import org.igutech.utils.ButtonToggle;
 import org.igutech.utils.control.PIDFController;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 public class Intake extends Module {
 
     private GamepadService gamepadService;
+    private ButtonToggle intakeToggle;
     private IntakeState intakeState = IntakeState.MANUAL;
     public static double p = 0.008;
     public static double i = 0;
@@ -34,6 +36,9 @@ public class Intake extends Module {
         positions.put(0, 0);
         positions.put(1, 0);
         positions.put(2, 160);
+
+        intakeToggle = new ButtonToggle(1,"x",()->{});
+        intakeToggle.init();
     }
 
     @Override
@@ -45,7 +50,13 @@ public class Intake extends Module {
                 if (power > 0.05) {
                     power = Math.max(power, 0.5);
                 }
-                power = power * -1;
+                if (power > 0.1) {
+                    Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
+                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
+                }
+                if(!intakeToggle.getState()){
+                    power = power * -1;
+                }
                 Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
                 break;
             case AUTO:
@@ -77,6 +88,7 @@ public class Intake extends Module {
                 break;
 
         }
+        intakeToggle.loop();
 
 
         //Teleop.getInstance().telemetry.addData("Intake Position ", currentPos);
