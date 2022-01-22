@@ -28,9 +28,10 @@ public class Delivery extends Module {
     public static double maxPower = 0.8;
     private boolean teleop;
 
-    public Delivery(Hardware hardware, boolean teleop) {
+    public Delivery(Hardware hardware, TimerService timerService, boolean teleop) {
 
         super(500, "Delivery");
+        this.timerService = timerService;
         this.hardware = hardware;
         this.teleop = teleop;
     }
@@ -38,15 +39,18 @@ public class Delivery extends Module {
     HashMap<Integer, Integer> position;
     private DeliveryState extendDeliveryState = DeliveryState.HIGH;
     private DeliveryState currentDeliveryState = DeliveryState.OFF;
+    private ButtonToggle deliveryToggle;
+    private ButtonToggle holderToggle;
+    private ButtonToggle safety;
+    private ButtonToggle encoderReset;
     public static int targetPosition;
-    public static int marginError = 280;
+    public static int marginError = 300;
 
     @Override
     public void init() {
         controller = new PIDFController(p, i, d, f);
         if (teleop) {
             gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
-            timerService = (TimerService) Teleop.getInstance().getService("TimerService");
             highToggle = new ButtonToggle(1, "dpad_up", () -> extendDeliveryState = DeliveryState.HIGH, () -> extendDeliveryState = DeliveryState.HIGH);
             middleToggle = new ButtonToggle(1, "dpad_left", () -> extendDeliveryState = DeliveryState.MIDDLE, () -> extendDeliveryState = DeliveryState.MIDDLE);
             lowToggle = new ButtonToggle(1, "dpad_down", () -> extendDeliveryState = DeliveryState.LOW, () -> extendDeliveryState = DeliveryState.LOW);
@@ -54,16 +58,39 @@ public class Delivery extends Module {
             highToggle.init();
             middleToggle.init();
             lowToggle.init();
+//            hardware.getServos().get("deliveryServo").setPosition(0.73);
+//            hardware.getServos().get("holderServo").setPosition(0.36);
             hardware.getServos().get("deliveryServo").setPosition(0.73);
-            hardware.getServos().get("holderServo").setPosition(0.36);
+            hardware.getServos().get("holderServo").setPosition(0.65);
+
+            deliveryToggle = new ButtonToggle(2,"y",
+                    ()->hardware.getServos().get("deliveryServo").setPosition(0.93),
+                    ()->hardware.getServos().get("deliveryServo").setPosition(0.73));
+            deliveryToggle.init();
+
+            holderToggle = new ButtonToggle(2,"a",
+                    ()->hardware.getServos().get("holderServo").setPosition(0.36),
+                    ()->hardware.getServos().get("holderServo").setPosition(0.65));
+            holderToggle.init();
+
+            safety = new ButtonToggle(2,"dpad_up",()->{},()->{});
+            safety.init();
+            encoderReset = new ButtonToggle(2,"x",()->{
+                hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                safety.setState(false);
+            });
+            encoderReset.init();
+
         }
 
         position = new HashMap<>();
+        position.put(-2, -100);
         position.put(-1, 0);
         position.put(0, 0);
-        position.put(1, -550);
-        position.put(2, -500);
-        position.put(3, -310);
+        position.put(1, -580);
+        position.put(2, -520);
+        position.put(3, -360);
         controller.init();
 
 
@@ -79,30 +106,45 @@ public class Delivery extends Module {
     public void loop() {
         controller.setPIDFValues(p, i, d, f);
         targetPosition = position.get(currentDeliveryState.value);
+
         double currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
         switch (currentDeliveryState) {
             case LOW:
+                if (Math.abs(currentPos - targetPosition) <= marginError) {
+                    hardware.getMotors().get("delivery").setPower(0.0);
+                } else {
+                    updatePID(targetPosition, currentPos);
+                }
+                break;
             case MIDDLE:
+                updatePID(targetPosition,currentPos);
+                break;
             case HIGH:
-                System.out.println("running delivery high");
                 updatePID(targetPosition, currentPos);
                 break;
             case WAITING:
-                if (Math.abs(currentPos - targetPosition) <= marginError) {
-                    currentDeliveryState = DeliveryState.OFF;
+                if (Math.abs(currentPos - targetPosition) <= 340) {
+                    hardware.getMotors().get("delivery").setPower(0.0);
+                } else {
+                    updatePID(targetPosition, currentPos);
                 }
+                if (Math.abs(currentPos - targetPosition) <= 10) {
+                    currentDeliveryState = DeliveryState.SAFETY;
+                }
+                break;
+            case SAFETY:
                 updatePID(targetPosition, currentPos);
+                timerService.registerUniqueTimerEvent(500, "Safety", () -> currentDeliveryState = DeliveryState.OFF);
                 break;
             case OFF:
                 hardware.getMotors().get("delivery").setPower(0.0);
-
                 break;
+
 
         }
 
 
-        //Teleop.getInstance().telemetry.addData("Delivery Position ", currentPos);
-        //Teleop.getInstance().telemetry.addData("Delivery Target ", targetPosition);
+
 
 
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Position ", currentPos);
@@ -111,11 +153,20 @@ public class Delivery extends Module {
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Extend State ", extendDeliveryState);
 
         if (teleop) {
+            if(safety.getState()){
+                hardware.getMotors().get("delivery").setPower(gamepadService.getAnalog(2,"left_stick_y"));
+            }
             highToggle.loop();
             middleToggle.loop();
             lowToggle.loop();
+            deliveryToggle.loop();
+            holderToggle.loop();
+            encoderReset.loop();
+            safety.loop();
             Teleop.getInstance().telemetry.addData("Current Delivery State ", currentDeliveryState);
             Teleop.getInstance().telemetry.addData("Extend Delivery State ", extendDeliveryState);
+            Teleop.getInstance().telemetry.addData("Delivery Position ", currentPos);
+            Teleop.getInstance().telemetry.addData("Delivery Target ", targetPosition);
         }
 
     }
@@ -150,7 +201,8 @@ public class Delivery extends Module {
         MIDDLE(2),
         LOW(1),
         WAITING(0),
-        OFF(-1);
+        OFF(-1),
+        SAFETY(-2);
         public int value;
 
         DeliveryState(int value) {
