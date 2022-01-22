@@ -17,7 +17,6 @@ public class IntakeDeliver extends Module {
     private ButtonToggle deliveryToggle;
     private ButtonToggle deliveryServoToggle;
 
-
     public IntakeDeliver() {
         super(600, "IntakeDeliver");
     }
@@ -32,7 +31,7 @@ public class IntakeDeliver extends Module {
         intakeLiftToggle = new ButtonToggle(1, "left_bumper", () -> {
             intakeInstance.setIntakeLiftState(true);
 
-            timerService.registerUniqueTimerEvent(300, "activateIntake", () -> intakeInstance.setIntakeState(Intake.IntakeState.AUTO));
+             intakeInstance.setIntakeState(Intake.IntakeState.AUTO);
         }, () -> {
             intakeInstance.setIntakeLiftState(false);
             intakeInstance.setIntakeState(Intake.IntakeState.MANUAL);
@@ -50,6 +49,7 @@ public class IntakeDeliver extends Module {
                 Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
             });
         });
+
         intakeLiftToggle.init();
         deliveryToggle.init();
         deliveryServoToggle.init();
