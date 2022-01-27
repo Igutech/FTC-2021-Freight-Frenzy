@@ -37,7 +37,8 @@ public class Intake extends Module {
         positions.put(1, 0);
         positions.put(2, 160);
 
-        intakeToggle = new ButtonToggle(1,"x",()->{});
+        intakeToggle = new ButtonToggle(1, "x", () -> {
+        });
         intakeToggle.init();
     }
 
@@ -47,14 +48,12 @@ public class Intake extends Module {
         switch (intakeState) {
             case MANUAL:
                 double power = gamepadService.getAnalog(1, "left_trigger");
-                if (power > 0.05) {
-                    power = Math.max(power, 0.5);
-                }
                 if (power > 0.1) {
                     Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
                     Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
+                    power = Math.max(power, 0.5);
                 }
-                if(!intakeToggle.getState()){
+                if (!intakeToggle.getState()) {
                     power = power * -1;
                 }
                 Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
