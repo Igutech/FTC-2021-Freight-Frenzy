@@ -1,11 +1,19 @@
 package org.igutech.teleop.modules;
 
+
 import com.acmerobotics.dashboard.FtcDashboard;
 
 import org.igutech.teleop.Module;
 import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
 import org.igutech.utils.control.PIDFController;
+
+import dev.scratch.simplestatemachine.State;
+import dev.scratch.simplestatemachine.StateBuilder;
+import dev.scratch.simplestatemachine.StateMachine;
+import dev.scratch.simplestatemachine.StateMachineBuilder;
+import dev.scratch.simplestatemachine.Transition;
+import dev.scratch.simplestatemachine.TransitionBuilder;
 
 public class Intake extends Module {
 
@@ -19,6 +27,19 @@ public class Intake extends Module {
     private PIDFController controller;
     private int[] positions;
     private IntakeLiftState intakeLiftState = IntakeLiftState.OFF;
+    private State intakeManual;
+    private State intakeAuto;
+
+    private Transition manualTransition = new TransitionBuilder()
+            .name("manualTransition")
+            .customTransition(() -> intakeState == IntakeState.AUTO, intakeAuto)
+            .build();
+    private Transition autoTransition = new TransitionBuilder()
+            .name("autoTransition")
+            .customTransition(() -> intakeState == IntakeState.MANUAL, intakeManual)
+            .build();
+
+    private StateMachine intakeStateMachine;
 
     public Intake() {
         super(700, "Intake");
@@ -35,35 +56,50 @@ public class Intake extends Module {
         intakeToggle = new ButtonToggle(1, "x", () -> {
         });
         intakeToggle.init();
+
+        intakeManual = new StateBuilder()
+                .name("intakeManual")
+                .onEntry(() -> {
+                })
+                .loop(() -> {
+                    double power = gamepadService.getAnalog(1, "left_trigger");
+                    if (power > 0.1) {
+                        Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
+                        Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
+                        power = Math.max(power, 0.5);
+                    }
+                    if (!intakeToggle.getState()) {
+                        power = power * -1;
+                    }
+                    Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
+                })
+                .onExit(() -> Teleop.getInstance().getHardware().getMotors().get("intake").setPower(0))
+                .build();
+        intakeAuto = new StateBuilder()
+                .name("intakeAuto")
+                .onEntry(() -> {
+                })
+                .loop(() ->
+                        Teleop.getInstance().getHardware().getMotors().get("intake").setPower(-1)
+                )
+                .onExit(() -> Teleop.getInstance().getHardware().getMotors().get("intake").setPower(0))
+                .build();
+
+        intakeStateMachine = new StateMachineBuilder()
+                .init(intakeManual)
+                .build();
+        intakeManual.setTransition(manualTransition);
+        intakeAuto.setTransition(autoTransition);
+    }
+
+    @Override
+    public void start() {
+        intakeStateMachine.start();
     }
 
     @Override
     public void loop() {
 
-        switch (intakeState) {
-            case MANUAL:
-                double power = gamepadService.getAnalog(1, "left_trigger");
-                if (power > 0.1) {
-                    Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
-                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.36);
-                    power = Math.max(power, 0.5);
-                }
-                if (!intakeToggle.getState()) {
-                    power = power * -1;
-                }
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
-                break;
-            case AUTO:
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(-1);
-                break;
-            case WAITING:
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(0);
-                intakeState = IntakeState.OFF;
-                break;
-            case OFF:
-                break;
-
-        }
 
         double currentPos = Teleop.getInstance().getHardware().getMotors().get("intakeLift").getCurrentPosition();
         double targetPosition = positions[intakeLiftState.value];
@@ -83,7 +119,7 @@ public class Intake extends Module {
 
         }
         intakeToggle.loop();
-
+        intakeStateMachine.loop();
 
         //Teleop.getInstance().telemetry.addData("Intake Position ", currentPos);
         //Teleop.getInstance().telemetry.addData("Intake Target ", targetPosition);
@@ -113,8 +149,6 @@ public class Intake extends Module {
     public enum IntakeState {
         AUTO,
         MANUAL,
-        WAITING,
-        OFF
     }
 
     private enum IntakeLiftState {

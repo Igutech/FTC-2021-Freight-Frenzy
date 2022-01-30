@@ -21,5 +21,7 @@ dependencies {
         exclude group: 'org.firstinspires.ftc'
     }
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
+    implementation 'com.github.Jaiming724:SimpleStateMachine:9843b61bec'
+
 
 }
