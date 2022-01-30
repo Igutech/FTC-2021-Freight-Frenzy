@@ -57,6 +57,7 @@ public class Hardware {
         motors.get("frontleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("backright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("backleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motors.get("spinner").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         servos.put("deliveryServo", hardwareMap.servo.get("deliveryServo"));
         servos.put("holderServo", hardwareMap.servo.get("holderServo"));
