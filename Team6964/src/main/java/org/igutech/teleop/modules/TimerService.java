@@ -12,8 +12,8 @@ public class TimerService extends Service {
     private long startTime;
 
     private ArrayList<RepeatedTimerEvent> repeatedTimerEvents = new ArrayList<>();
-    private Queue<Event> uniqueEventsToBeAdded = new LinkedList<>();
-    private ArrayList<Event> events = new ArrayList<>();
+    private Set<SingleTimerEvent> uniqueEventsToBeAdded = new HashSet<>();
+    private ArrayList<SingleTimerEvent> events = new ArrayList<>();
 
     public TimerService() {
         super("TimerService");
@@ -31,7 +31,7 @@ public class TimerService extends Service {
         events.addAll(uniqueEventsToBeAdded);
         uniqueEventsToBeAdded.clear();
 
-        Iterator<Event> iterator = events.iterator();
+        Iterator<SingleTimerEvent> iterator = events.iterator();
 
         while (iterator.hasNext()) {
             Event e = iterator.next();
@@ -54,6 +54,11 @@ public class TimerService extends Service {
     }
 
     public TimerService registerUniqueTimerEvent(long time, String name, Callback m) {
+        for (SingleTimerEvent event : events) {
+            if (event.getName().equals(name)) {
+                return this;
+            }
+        }
         uniqueEventsToBeAdded.add(new SingleTimerEvent(time, name, m));
         return this;
     }
