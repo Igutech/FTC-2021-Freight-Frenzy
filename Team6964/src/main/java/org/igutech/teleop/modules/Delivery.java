@@ -34,6 +34,7 @@ public class Delivery extends Module {
     private ButtonToggle encoderReset;
     public static int targetPosition;
     public static int marginError = 300;
+    private int offset;
 
     public Delivery(Hardware hardware, TimerService timerService, boolean teleop) {
 
@@ -76,6 +77,7 @@ public class Delivery extends Module {
             encoderReset = new ButtonToggle(2, "x", () -> {
                 hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                offset = 0;
                 safety.setState(false);
             });
             encoderReset.init();
@@ -98,7 +100,7 @@ public class Delivery extends Module {
     public void loop() {
         controller.setPIDFValues(p, i, d, f);
         targetPosition = deliveryPosition[currentDeliveryState.value];
-
+        targetPosition -= offset;
         double currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
         switch (currentDeliveryState) {
             case LOW:
@@ -130,6 +132,11 @@ public class Delivery extends Module {
                 break;
             case OFF:
                 hardware.getMotors().get("delivery").setPower(0.0);
+                timerService.registerUniqueTimerEvent(1500, "getOffset", () -> {
+                    if (currentDeliveryState == DeliveryState.OFF) {
+                        offset = hardware.getMotors().get("delivery").getCurrentPosition();
+                    }
+                });
                 break;
 
 
@@ -201,5 +208,9 @@ public class Delivery extends Module {
 
     public DeliveryState getCurrentDeliveryState() {
         return currentDeliveryState;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 }
