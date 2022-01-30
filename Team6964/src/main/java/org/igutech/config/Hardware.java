@@ -47,11 +47,10 @@ public class Hardware {
 //        motors.get("frontright").setDirection(DcMotorSimple.Direction.REVERSE);
 //        motors.get("frontleft").setDirection(DcMotorSimple.Direction.REVERSE);
 
-        if(teleop){
+        if (teleop) {
             motors.get("backright").setDirection(DcMotorSimple.Direction.REVERSE);
             motors.get("backleft").setDirection(DcMotorSimple.Direction.REVERSE);
         }
-
 
 
         motors.get("frontright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -59,8 +58,10 @@ public class Hardware {
         motors.get("backright").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.get("backleft").setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        servos.put("deliveryServo",hardwareMap.servo.get("deliveryServo"));
-        servos.put("holderServo",hardwareMap.servo.get("holderServo"));
+        servos.put("deliveryServo", hardwareMap.servo.get("deliveryServo"));
+        servos.put("holderServo", hardwareMap.servo.get("holderServo"));
+
+        touchSensors.put("intakeBeamBreaker", hardwareMap.get(DigitalChannel.class, "intakeBeamBreaker"));
     }
 
     /**
@@ -90,6 +91,7 @@ public class Hardware {
     public Map<String, Servo> getServos() {
         return servos;
     }
+
     public Map<String, CRServo> getCRServos() {
         return CRservos;
     }

@@ -151,7 +151,7 @@ public class Intake extends Module {
         MANUAL,
     }
 
-    private enum IntakeLiftState {
+    public enum IntakeLiftState {
         UP(2),
         DOWN(1),
         OFF(0);
@@ -171,11 +171,7 @@ public class Intake extends Module {
     }
 
 
-    public void setIntakeLiftState(boolean on) {
-        if (on) {
-            intakeLiftState = IntakeLiftState.UP;
-        } else {
-            intakeLiftState = IntakeLiftState.DOWN;
-        }
+    public void setIntakeLiftState(IntakeLiftState intakeLiftState) {
+        this.intakeLiftState = intakeLiftState;
     }
 }
