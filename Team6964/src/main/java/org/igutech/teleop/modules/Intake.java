@@ -7,8 +7,6 @@ import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
 import org.igutech.utils.control.PIDFController;
 
-import java.util.HashMap;
-
 public class Intake extends Module {
 
     private GamepadService gamepadService;
@@ -19,7 +17,7 @@ public class Intake extends Module {
     public static double d = 0.00013;
     public static double f = 0.0007;
     private PIDFController controller;
-    private HashMap<Integer, Integer> positions;
+    private int[] positions;
     private IntakeLiftState intakeLiftState = IntakeLiftState.OFF;
 
     public Intake() {
@@ -32,10 +30,7 @@ public class Intake extends Module {
         controller = new PIDFController(p, i, d, f);
         controller.init();
 
-        positions = new HashMap<>();
-        positions.put(0, 0);
-        positions.put(1, 0);
-        positions.put(2, 160);
+        positions = new int[]{0, 0, 160};
 
         intakeToggle = new ButtonToggle(1, "x", () -> {
         });
@@ -71,9 +66,9 @@ public class Intake extends Module {
         }
 
         double currentPos = Teleop.getInstance().getHardware().getMotors().get("intakeLift").getCurrentPosition();
-        double targetPosition = positions.get(intakeLiftState.value);
+        double targetPosition = positions[intakeLiftState.value];
         controller.setPIDFValues(p, i, d, f);
-        controller.updateSetpoint(positions.get(intakeLiftState.value));
+        controller.updateSetpoint(targetPosition);
 
         switch (intakeLiftState) {
             case UP:

@@ -10,8 +10,6 @@ import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
 import org.igutech.utils.control.PIDFController;
 
-import java.util.HashMap;
-
 @Config
 public class Delivery extends Module {
     private GamepadService gamepadService;
@@ -27,16 +25,7 @@ public class Delivery extends Module {
     public static double f = 0;
     public static double maxPower = 0.8;
     private boolean teleop;
-
-    public Delivery(Hardware hardware, TimerService timerService, boolean teleop) {
-
-        super(500, "Delivery");
-        this.timerService = timerService;
-        this.hardware = hardware;
-        this.teleop = teleop;
-    }
-
-    HashMap<Integer, Integer> position;
+    private int[] deliveryPosition;
     private DeliveryState extendDeliveryState = DeliveryState.HIGH;
     private DeliveryState currentDeliveryState = DeliveryState.OFF;
     private ButtonToggle deliveryToggle;
@@ -45,6 +34,14 @@ public class Delivery extends Module {
     private ButtonToggle encoderReset;
     public static int targetPosition;
     public static int marginError = 300;
+
+    public Delivery(Hardware hardware, TimerService timerService, boolean teleop) {
+
+        super(500, "Delivery");
+        this.timerService = timerService;
+        this.hardware = hardware;
+        this.teleop = teleop;
+    }
 
     @Override
     public void init() {
@@ -58,24 +55,25 @@ public class Delivery extends Module {
             highToggle.init();
             middleToggle.init();
             lowToggle.init();
-//            hardware.getServos().get("deliveryServo").setPosition(0.73);
-//            hardware.getServos().get("holderServo").setPosition(0.36);
+
             hardware.getServos().get("deliveryServo").setPosition(0.73);
             hardware.getServos().get("holderServo").setPosition(0.65);
 
-            deliveryToggle = new ButtonToggle(2,"y",
-                    ()->hardware.getServos().get("deliveryServo").setPosition(0.93),
-                    ()->hardware.getServos().get("deliveryServo").setPosition(0.73));
+            deliveryToggle = new ButtonToggle(2, "y",
+                    () -> hardware.getServos().get("deliveryServo").setPosition(0.93),
+                    () -> hardware.getServos().get("deliveryServo").setPosition(0.73));
             deliveryToggle.init();
 
-            holderToggle = new ButtonToggle(2,"a",
-                    ()->hardware.getServos().get("holderServo").setPosition(0.36),
-                    ()->hardware.getServos().get("holderServo").setPosition(0.65));
+            holderToggle = new ButtonToggle(2, "a",
+                    () -> hardware.getServos().get("holderServo").setPosition(0.36),
+                    () -> hardware.getServos().get("holderServo").setPosition(0.65));
             holderToggle.init();
 
-            safety = new ButtonToggle(2,"dpad_up",()->{},()->{});
+            safety = new ButtonToggle(2, "dpad_up", () -> {
+            }, () -> {
+            });
             safety.init();
-            encoderReset = new ButtonToggle(2,"x",()->{
+            encoderReset = new ButtonToggle(2, "x", () -> {
                 hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 hardware.getMotors().get("delivery").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 safety.setState(false);
@@ -84,13 +82,7 @@ public class Delivery extends Module {
 
         }
 
-        position = new HashMap<>();
-        position.put(-2, -100);
-        position.put(-1, 0);
-        position.put(0, 0);
-        position.put(1, -580);
-        position.put(2, -520);
-        position.put(3, -360);
+        deliveryPosition = new int[]{-100, 0, 0, -580, -520, 360};
         controller.init();
 
 
@@ -105,7 +97,7 @@ public class Delivery extends Module {
     @Override
     public void loop() {
         controller.setPIDFValues(p, i, d, f);
-        targetPosition = position.get(currentDeliveryState.value);
+        targetPosition = deliveryPosition[currentDeliveryState.value];
 
         double currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
         switch (currentDeliveryState) {
@@ -117,7 +109,7 @@ public class Delivery extends Module {
                 }
                 break;
             case MIDDLE:
-                updatePID(targetPosition,currentPos);
+                updatePID(targetPosition, currentPos);
                 break;
             case HIGH:
                 updatePID(targetPosition, currentPos);
@@ -144,17 +136,14 @@ public class Delivery extends Module {
         }
 
 
-
-
-
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Position ", currentPos);
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Target ", targetPosition);
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Current State ", currentDeliveryState);
         FtcDashboard.getInstance().getTelemetry().addData("Delivery Extend State ", extendDeliveryState);
 
         if (teleop) {
-            if(safety.getState()){
-                hardware.getMotors().get("delivery").setPower(gamepadService.getAnalog(2,"left_stick_y"));
+            if (safety.getState()) {
+                hardware.getMotors().get("delivery").setPower(gamepadService.getAnalog(2, "left_stick_y"));
             }
             highToggle.loop();
             middleToggle.loop();
@@ -197,12 +186,12 @@ public class Delivery extends Module {
     }
 
     public enum DeliveryState {
-        HIGH(3),
-        MIDDLE(2),
-        LOW(1),
-        WAITING(0),
-        OFF(-1),
-        SAFETY(-2);
+        HIGH(5),
+        MIDDLE(4),
+        LOW(3),
+        WAITING(2),
+        OFF(1),
+        SAFETY(0);
         public int value;
 
         DeliveryState(int value) {
