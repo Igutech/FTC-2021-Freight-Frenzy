@@ -33,6 +33,7 @@ public class Delivery extends Module {
     private ButtonToggle safety;
     private ButtonToggle encoderReset;
     public static int targetPosition;
+    private double currentPos;
     public static int marginError = 300;
     private int offset;
 
@@ -101,7 +102,7 @@ public class Delivery extends Module {
         controller.setPIDFValues(p, i, d, f);
         targetPosition = deliveryPosition[currentDeliveryState.value];
         targetPosition -= offset;
-        double currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
+        currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
         switch (currentDeliveryState) {
             case LOW:
                 if (Math.abs(currentPos - targetPosition) <= marginError) {
@@ -132,11 +133,11 @@ public class Delivery extends Module {
                 break;
             case OFF:
                 hardware.getMotors().get("delivery").setPower(0.0);
-                timerService.registerUniqueTimerEvent(1500, "getOffset", () -> {
-                    if (currentDeliveryState == DeliveryState.OFF) {
-                        offset = hardware.getMotors().get("delivery").getCurrentPosition();
-                    }
-                });
+//                timerService.registerUniqueTimerEvent(1500, "getOffset", () -> {
+//                    if (currentDeliveryState == DeliveryState.OFF) {
+//                        offset = hardware.getMotors().get("delivery").getCurrentPosition();
+//                    }
+//                });
                 break;
 
 
@@ -179,6 +180,16 @@ public class Delivery extends Module {
         }
     }
 
+    public void setDeliveryStateBaseOnPattern(int pattern) {
+        if (pattern == 1) {
+            currentDeliveryState = DeliveryState.LOW;
+        } else if (pattern == 2) {
+            currentDeliveryState = DeliveryState.MIDDLE;
+        } else {
+            currentDeliveryState = DeliveryState.HIGH;
+        }
+    }
+
     private void updatePID(double targetPosition, double currentPosition) {
         controller.updateSetpoint(targetPosition);
         double pow = controller.update(currentPosition);
@@ -212,5 +223,10 @@ public class Delivery extends Module {
 
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    public double getError() {
+
+        return Math.abs(targetPosition - currentPos);
     }
 }
