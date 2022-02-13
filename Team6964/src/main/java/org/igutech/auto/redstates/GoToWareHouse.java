@@ -30,12 +30,14 @@ public class GoToWareHouse extends State {
     @Override
     public void onEntry(@Nullable State previousState) {
         redAutoBase.getDrive().followTrajectorySequenceAsync(goToWareHouse);
-
     }
 
     @Nullable
     @Override
     public State getNextState() {
+        if (!redAutoBase.getDrive().isBusy()) {
+            return new RelocalizePosition(redAutoBase, goToWareHouse.end());
+        }
         return null;
     }
 }

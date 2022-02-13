@@ -9,31 +9,29 @@ import org.jetbrains.annotations.Nullable;
 
 import dev.raneri.statelib.State;
 
-public class GoToHub extends State {
+public class Collect extends State {
     private RedAutoPath redAutoBase;
     private Pose2d startPose;
-    private TrajectorySequence goToHub;
+    private boolean done = false;
+    private TrajectorySequence collectTrajectory;
 
-    public GoToHub(RedAutoPath redAutoBase, Pose2d startPose) {
+    public Collect(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
-        goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(-12, -33))
+        collectTrajectory = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
+                .splineTo(new Vector2d(35, -63.5), Math.toRadians(0.0))
                 .build();
     }
 
     @Override
     public void onEntry(@Nullable State previousState) {
-        redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
-
+        redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
+        redAutoBase.getDrive().followTrajectorySequenceAsync(collectTrajectory);
     }
 
     @Nullable
     @Override
     public State getNextState() {
-        if (!redAutoBase.getDrive().isBusy()) {
-            return new Deliver(redAutoBase, goToHub.end());
-        }
         return null;
     }
 }

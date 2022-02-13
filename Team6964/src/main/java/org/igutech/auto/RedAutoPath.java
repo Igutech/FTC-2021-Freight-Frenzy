@@ -5,11 +5,14 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.igutech.auto.redstates.PrepareToGoToHub;
 import org.igutech.auto.roadrunner.SampleMecanumDrive;
 import org.igutech.auto.redstates.PutDownDelivery;
 import org.igutech.auto.vision.BarcodePipeline;
 import org.igutech.config.Hardware;
+import org.igutech.teleop.modules.ColorDetection;
 import org.igutech.teleop.modules.Delivery;
+import org.igutech.teleop.modules.Intake;
 import org.igutech.teleop.modules.TimerService;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -24,16 +27,18 @@ public class RedAutoPath extends LinearOpMode {
     private Hardware hardware;
     private TimerService timerService;
     private Delivery delivery;
+    private ColorDetection colorDetection;
     private SampleMecanumDrive drive;
     public static int pattern = 2;
     public static Delivery.DeliveryState deliveryState = Delivery.DeliveryState.HIGH;
-    OpenCvCamera phoneCam;
+    private OpenCvCamera phoneCam;
 
     @Override
     public void runOpMode() throws InterruptedException {
         hardware = new Hardware(hardwareMap, false);
         timerService = new TimerService();
         delivery = new Delivery(hardware, timerService, false);
+        colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(10, -60, Math.toRadians(-90));
         hardware.getServos().get("deliveryServo").setPosition(0.73);
@@ -79,7 +84,7 @@ public class RedAutoPath extends LinearOpMode {
         delivery.start();
 
         if (isStopRequested()) return;
-        transitioner.init(new PutDownDelivery(this, startPose));
+        transitioner.init(new PrepareToGoToHub(this, startPose));
         drive.setPoseEstimate(startPose);
 
 
@@ -116,5 +121,9 @@ public class RedAutoPath extends LinearOpMode {
 
     public SampleMecanumDrive getDrive() {
         return drive;
+    }
+
+    public ColorDetection getColorDetection() {
+        return colorDetection;
     }
 }
