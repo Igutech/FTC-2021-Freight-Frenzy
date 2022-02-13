@@ -29,7 +29,7 @@ public class RelocalizePosition extends State {
 
     @Override
     public void loop() {
-        if (redAutoBase.getColorDetection().getRGBA().red > 100) {
+        if (redAutoBase.getColorDetection().getRGBA().red > 0.15) {
             redAutoBase.getHardware().getMotors().get("frontleft").setPower(0);
             redAutoBase.getHardware().getMotors().get("frontright").setPower(0);
             redAutoBase.getHardware().getMotors().get("backleft").setPower(0);
