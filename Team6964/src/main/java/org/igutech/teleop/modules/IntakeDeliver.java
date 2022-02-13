@@ -16,7 +16,6 @@ public class IntakeDeliver extends Module {
     private ButtonToggle intakeLiftToggle;
     private ButtonToggle deliveryToggle;
     private ButtonToggle deliveryServoToggle;
-    private boolean touchSensorActivated;
 
     public IntakeDeliver() {
         super(600, "IntakeDeliver");
@@ -36,7 +35,6 @@ public class IntakeDeliver extends Module {
             intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.DOWN);
             intakeInstance.setIntakeState(Intake.IntakeState.MANUAL);
             timerService.registerUniqueTimerEvent(250, "activateHolderServo", () -> Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(0.65));
-            touchSensorActivated = false;
         });
 
         deliveryToggle = new ButtonToggle(1, "right_bumper", () -> deliveryInstance.setDeliveryStatus(true), () -> {
@@ -64,14 +62,6 @@ public class IntakeDeliver extends Module {
 
     @Override
     public void loop() {
-        if (Teleop.getInstance().getHardware().getTouchSensors().get("intakeBeamBreaker").getState() && !touchSensorActivated) {
-            touchSensorActivated = true;
-            timerService.registerUniqueTimerEvent(500, "activateIntakeLift", () -> {
-                intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.UP);
-                intakeInstance.setIntakeState(Intake.IntakeState.AUTO);
-                intakeLiftToggle.setState(true);
-            });
-        }
         intakeLiftToggle.loop();
         deliveryToggle.loop();
         deliveryServoToggle.loop();
