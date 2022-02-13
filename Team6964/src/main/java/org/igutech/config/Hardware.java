@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ public class Hardware {
     private Map<String, Servo> servos;
     private Map<String, CRServo> CRservos;
     private Map<String, DigitalChannel> touchSensors;
+    private Map<String, NormalizedColorSensor> colorSensors;
 
     /**
      * Initialize the hardware object
@@ -29,6 +31,7 @@ public class Hardware {
         this.servos = new HashMap<>();
         this.CRservos = new HashMap<>();
         this.touchSensors = new HashMap<>();
+        this.colorSensors = new HashMap<>();
         motors.put("frontleft", hardwareMap.dcMotor.get("frontleft"));
         motors.put("frontright", hardwareMap.dcMotor.get("frontright"));
         motors.put("backleft", hardwareMap.dcMotor.get("backleft"));
@@ -62,7 +65,8 @@ public class Hardware {
         servos.put("deliveryServo", hardwareMap.servo.get("deliveryServo"));
         servos.put("holderServo", hardwareMap.servo.get("holderServo"));
 
-        touchSensors.put("intakeBeamBreaker", hardwareMap.get(DigitalChannel.class, "intakeBeamBreaker"));
+        colorSensors.put("colorSensor", hardwareMap.get(NormalizedColorSensor.class, "Color"));
+        //touchSensors.put("intakeBeamBreaker", hardwareMap.get(DigitalChannel.class, "intakeBeamBreaker"));
     }
 
     /**
@@ -104,5 +108,9 @@ public class Hardware {
      */
     public Map<String, DigitalChannel> getTouchSensors() {
         return touchSensors;
+    }
+
+    public Map<String, NormalizedColorSensor> getColorSensors() {
+        return colorSensors;
     }
 }
