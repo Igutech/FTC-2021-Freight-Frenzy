@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Disabled
 @TeleOp
 @Config
 public class ColorSensorTest extends LinearOpMode {
@@ -25,6 +27,9 @@ public class ColorSensorTest extends LinearOpMode {
     public void runOpMode() {
         // Get the color sensor from hardwareMap
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "Color");
+        if(colorSensor==null){
+            System.out.println("Color sensor is null");
+        }
         if (colorSensor instanceof SwitchableLight) {
             ((SwitchableLight) colorSensor).enableLight(true);
         }
@@ -36,6 +41,9 @@ public class ColorSensorTest extends LinearOpMode {
             //TODO set this in init
             colorSensor.setGain((float) gain);
             NormalizedRGBA colors = colorSensor.getNormalizedColors();
+            System.out.println("red: "+colors.red);
+            System.out.println("blue: "+colors.blue);
+            System.out.println("green: "+colors.green);
             Color.colorToHSV(colors.toColor(), hsvValues);
             telemetry.addLine()
                     .addData("Red", "%.3f", colors.red)
@@ -48,25 +56,25 @@ public class ColorSensorTest extends LinearOpMode {
                     .addData("Value", "%.3f", hsvValues[2]);
             telemetry.addData("Alpha", "%.3f", colors.alpha);
 
-            FtcDashboard.getInstance().getTelemetry().addLine()
-                    .addData("Red", "%.3f", colors.red)
-                    .addData("Green", "%.3f", colors.green)
-                    .addData("Blue", "%.3f", colors.blue);
-            FtcDashboard.getInstance().getTelemetry().addLine()
-                    .addData("Hue", "%.3f", hsvValues[0])
-                    .addData("Saturation", "%.3f", hsvValues[1])
-                    .addData("Value", "%.3f", hsvValues[2]);
+//            FtcDashboard.getInstance().getTelemetry().addLine()
+//                    .addData("Red", "%.3f", colors.red)
+//                    .addData("Green", "%.3f", colors.green)
+//                    .addData("Blue", "%.3f", colors.blue);
+//            FtcDashboard.getInstance().getTelemetry().addLine()
+//                    .addData("Hue", "%.3f", hsvValues[0])
+//                    .addData("Saturation", "%.3f", hsvValues[1])
+//                    .addData("Value", "%.3f", hsvValues[2]);
             telemetry.addData("Alpha", "%.3f", colors.alpha);
             /* If this color sensor also has a distance sensor, display the measured distance.
              * Note that the reported distance is only useful at very close range, and is impacted by
              * ambient light and surface reflectivity. */
             if (colorSensor instanceof DistanceSensor) {
                 telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
-                FtcDashboard.getInstance().getTelemetry().addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
+                //FtcDashboard.getInstance().getTelemetry().addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
             }
 
             telemetry.update();
-            FtcDashboard.getInstance().getTelemetry().update();
+            //FtcDashboard.getInstance().getTelemetry().update();
         }
     }
 }

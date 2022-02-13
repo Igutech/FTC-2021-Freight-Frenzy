@@ -163,6 +163,7 @@ import org.igutech.auto.roadrunner.SampleMecanumDrive;
  *
  * Uncomment the @Disabled tag below to use this opmode.
  */
+@Disabled
 @Config
 @TeleOp(group = "drive")
 public class MotorDirectionDebugger extends LinearOpMode {
