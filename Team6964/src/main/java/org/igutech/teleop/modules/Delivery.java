@@ -85,7 +85,7 @@ public class Delivery extends Module {
 
         }
 
-        deliveryPosition = new int[]{-100, 0, 0, -580, -520, 360};
+        deliveryPosition = new int[]{-100, 0, 0, -600, -520, -345};
         controller.init();
 
 
@@ -105,7 +105,7 @@ public class Delivery extends Module {
         currentPos = hardware.getMotors().get("delivery").getCurrentPosition();
         switch (currentDeliveryState) {
             case LOW:
-                if (Math.abs(currentPos - targetPosition) <= marginError) {
+                if (Math.abs(currentPos - targetPosition) <= 300) {
                     hardware.getMotors().get("delivery").setPower(0.0);
                 } else {
                     updatePID(targetPosition, currentPos);
@@ -118,7 +118,7 @@ public class Delivery extends Module {
                 updatePID(targetPosition, currentPos);
                 break;
             case WAITING:
-                if (Math.abs(currentPos - targetPosition) <= 340) {
+                if (Math.abs(currentPos - targetPosition) <= marginError) {
                     hardware.getMotors().get("delivery").setPower(0.0);
                 } else {
                     updatePID(targetPosition, currentPos);
