@@ -8,6 +8,7 @@ import org.igutech.config.Hardware;
 import org.igutech.teleop.Module;
 import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
+import org.igutech.utils.MagicValues;
 import org.igutech.utils.control.PIDFController;
 
 @Config
@@ -59,16 +60,17 @@ public class Delivery extends Module {
             lowToggle.init();
 
             hardware.getServos().get("deliveryServo").setPosition(0.73);
-            hardware.getServos().get("holderServo").setPosition(0.65);
+            hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
 
             deliveryToggle = new ButtonToggle(2, "y",
                     () -> hardware.getServos().get("deliveryServo").setPosition(0.93),
                     () -> hardware.getServos().get("deliveryServo").setPosition(0.73));
             deliveryToggle.init();
 
+            //TODO fix this to all 3
             holderToggle = new ButtonToggle(2, "a",
-                    () -> hardware.getServos().get("holderServo").setPosition(0.36),
-                    () -> hardware.getServos().get("holderServo").setPosition(0.65));
+                    () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoPush),
+                    () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp));
             holderToggle.init();
 
             safety = new ButtonToggle(2, "dpad_up", () -> {

@@ -14,6 +14,7 @@ import org.igutech.teleop.modules.ColorDetection;
 import org.igutech.teleop.modules.Delivery;
 import org.igutech.teleop.modules.Intake;
 import org.igutech.teleop.modules.TimerService;
+import org.igutech.utils.MagicValues;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -42,7 +43,7 @@ public class RedAutoPath extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(10, -60, Math.toRadians(-90));
         hardware.getServos().get("deliveryServo").setPosition(0.73);
-        hardware.getServos().get("holderServo").setPosition(0.65);
+        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
 
         timerService.init();
         delivery.init();

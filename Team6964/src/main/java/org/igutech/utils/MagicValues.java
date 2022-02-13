@@ -6,8 +6,12 @@ import com.acmerobotics.dashboard.config.Config;
 public class MagicValues {
     public static double deliverServoUp = 0.93;
     public static double deliverServoDown = 0.73;
-    public static double holderServoUp = 0.65;
-    public static double holderServoDown = 0.36;
+    public static double holderServoPush=0.68;
+    public static double holderServoDown=0.5;
+    public static double holderServoUp=0.15;
+    //public static double holderServoUp = 0.65;
+    //public static double holderServoDown = 0.36;
+    //public static double holderServoPush = 0.15;
     public static double colorSensorGain = 2.0;
     public static double autoMotorPower=0.4;
 }
