@@ -7,6 +7,7 @@ import org.igutech.teleop.Module;
 import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
 import org.igutech.utils.MagicValues;
+import org.igutech.utils.events.CycleableAction;
 
 @Config
 public class IntakeDeliver extends Module {
@@ -18,6 +19,7 @@ public class IntakeDeliver extends Module {
     private ButtonToggle deliveryToggle;
     private ButtonToggle deliveryServoToggle;
     private ButtonToggle sharedShippingHubToggle;
+    private CycleableAction sharedHubActions;
 
     public IntakeDeliver() {
         super(600, "IntakeDeliver");
@@ -29,7 +31,21 @@ public class IntakeDeliver extends Module {
         timerService = (TimerService) Teleop.getInstance().getService("TimerService");
         deliveryInstance = (Delivery) Teleop.getInstance().getModuleByName("Delivery");
         intakeInstance = (Intake) Teleop.getInstance().getModuleByName("Intake");
-
+        sharedHubActions = new CycleableAction(
+                () -> {
+                    intakeInstance.setShareShippingHubActive(true);
+                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
+                    timerService.registerUniqueTimerEvent(750, "intakeLiftUp", () -> intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.UP));
+                },
+                () -> {
+                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
+                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
+                },
+                () -> {
+                    intakeInstance.setShareShippingHubActive(false);
+                    intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.DOWN);
+                }
+        );
         intakeLiftToggle = new ButtonToggle(1, "left_bumper", () -> {
             intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.UP);
             intakeInstance.setIntakeState(Intake.IntakeState.AUTO);
@@ -43,7 +59,7 @@ public class IntakeDeliver extends Module {
 
         deliveryToggle = new ButtonToggle(1, "right_bumper", () -> {
             Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
-            timerService.registerUniqueTimerEvent(400,"activateDelivery",()->            deliveryInstance.setDeliveryStatus(true));
+            timerService.registerUniqueTimerEvent(400, "activateDelivery", () -> deliveryInstance.setDeliveryStatus(true));
         }, () -> {
             Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
             deliveryInstance.setDeliveryStatus(false);
@@ -57,16 +73,7 @@ public class IntakeDeliver extends Module {
             });
         });
 
-        sharedShippingHubToggle = new ButtonToggle(1,"a",()->{
-            intakeInstance.setShareShippingHubActive(true);
-            Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
-            intakeLiftToggle.setState(true);
-            timerService.registerUniqueTimerEvent(750,"intakeLiftUp",()-> intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.UP));
-        },()->{
-            //TODO change the set false logic
-            intakeInstance.setIntakeState(Intake.IntakeState.MANUAL_REVERSE);
-            intakeInstance.setShareShippingHubActive(false);
-        });
+        sharedShippingHubToggle = new ButtonToggle(1, "a", () -> sharedHubActions.call());
 
         intakeLiftToggle.init();
         deliveryToggle.init();
