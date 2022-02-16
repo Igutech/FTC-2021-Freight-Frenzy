@@ -75,10 +75,10 @@ public class DriveTrain extends Module {
 //        Log.i("FrontRight ", String.valueOf(-powers.get(1)));
 //        Log.i("BackLeft ", String.valueOf(powers.get(2)));
 //        Log.i("BackRight ", String.valueOf(powers.get(3)));
-        Teleop.getInstance().telemetry.addData("FrontLeft ", -powers.get(0));
-        Teleop.getInstance().telemetry.addData("FrontRight", -powers.get(1));
-        Teleop.getInstance().telemetry.addData("BackLeft", powers.get(2));
-        Teleop.getInstance().telemetry.addData("BackRight", powers.get(3));
+        //Teleop.getInstance().telemetry.addData("FrontLeft ", powers.get(0));
+        //Teleop.getInstance().telemetry.addData("FrontRight", powers.get(1));
+        //Teleop.getInstance().telemetry.addData("BackLeft", powers.get(2));
+        //Teleop.getInstance().telemetry.addData("BackRight", powers.get(3));
 
     }
 }
