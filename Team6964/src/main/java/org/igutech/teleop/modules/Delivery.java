@@ -10,6 +10,7 @@ import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
 import org.igutech.utils.MagicValues;
 import org.igutech.utils.control.PIDFController;
+import org.igutech.utils.events.CycleableAction;
 
 @Config
 public class Delivery extends Module {
@@ -37,6 +38,7 @@ public class Delivery extends Module {
     private double currentPos;
     public static int marginError = 300;
     private int offset;
+    private CycleableAction holderToggleActions;
 
     public Delivery(Hardware hardware, TimerService timerService, boolean teleop) {
 
@@ -44,6 +46,10 @@ public class Delivery extends Module {
         this.timerService = timerService;
         this.hardware = hardware;
         this.teleop = teleop;
+        holderToggleActions = new CycleableAction(
+                () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp),
+                () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown),
+                () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoPush));
     }
 
     @Override
@@ -67,10 +73,7 @@ public class Delivery extends Module {
                     () -> hardware.getServos().get("deliveryServo").setPosition(0.73));
             deliveryToggle.init();
 
-            //TODO fix this to all 3
-            holderToggle = new ButtonToggle(2, "a",
-                    () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoPush),
-                    () -> hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp));
+            holderToggle = new ButtonToggle(2, "a", () -> holderToggleActions.call());
             holderToggle.init();
 
             safety = new ButtonToggle(2, "dpad_up", () -> {
