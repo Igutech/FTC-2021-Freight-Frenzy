@@ -30,7 +30,7 @@ public class RedAutoPath extends LinearOpMode {
     private Delivery delivery;
     private ColorDetection colorDetection;
     private SampleMecanumDrive drive;
-    public static int pattern = 2;
+    public static int pattern = 3;
     public static Delivery.DeliveryState deliveryState = Delivery.DeliveryState.HIGH;
     private OpenCvCamera phoneCam;
 
@@ -43,11 +43,11 @@ public class RedAutoPath extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(10, -60, Math.toRadians(-90));
         hardware.getServos().get("deliveryServo").setPosition(0.73);
-        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
+        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
 
         timerService.init();
         delivery.init();
-
+        colorDetection.init();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         BarcodePipeline pipeline = new BarcodePipeline();
@@ -71,11 +71,11 @@ public class RedAutoPath extends LinearOpMode {
             }
             System.out.println("Exiting " + event.getInitialState().getClass().getName() + " and going into " + event.getFinalState().getClass().getName());
         });
-        transitioner.addLoopStartHandler(event -> System.out.println("Current state: " + event.getState().getClass().getName()));
+        transitioner.addLoopStartHandler(event -> System.out.println("Current state: " + event.getState().getClass().getName()+ " HSV VALUE: "+colorDetection.getHsvValues()[2]));
 
         while (!opModeIsActive() && !isStopRequested()) {
             telemetry.addData("ready", "");
-            pattern = pipeline.pattern;
+            //pattern = pipeline.pattern;
             telemetry.addData("pattern", pattern);
             telemetry.update();
         }
@@ -97,10 +97,14 @@ public class RedAutoPath extends LinearOpMode {
            3 to high
          */
         while (!isStopRequested() && opModeIsActive()) {
+            delivery.loop();
             transitioner.loop();
             drive.update();
             timerService.loop();
-            delivery.loop();
+            colorDetection.loop();
+
+            telemetry.addData("pose estimate",drive.getPoseEstimate());
+            telemetry.update();
         }
     }
 

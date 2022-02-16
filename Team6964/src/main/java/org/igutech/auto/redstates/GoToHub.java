@@ -18,7 +18,7 @@ public class GoToHub extends State {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
         goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(-12, -33))
+                .lineToConstantHeading(new Vector2d(-12, -40))
                 .build();
     }
 

@@ -13,5 +13,5 @@ public class MagicValues {
     //public static double holderServoDown = 0.36;
     //public static double holderServoPush = 0.15;
     public static double colorSensorGain = 2.0;
-    public static double autoMotorPower=0.4;
+    public static double autoMotorPower=0.3;
 }

@@ -14,24 +14,35 @@ public class Collect extends State {
     private Pose2d startPose;
     private boolean done = false;
     private TrajectorySequence collectTrajectory;
-
     public Collect(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
         collectTrajectory = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
-                .splineTo(new Vector2d(35, -63.5), Math.toRadians(0.0))
+                .lineToLinearHeading(new Pose2d(45, -63.5,0))
                 .build();
     }
 
     @Override
     public void onEntry(@Nullable State previousState) {
-        redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
         redAutoBase.getDrive().followTrajectorySequenceAsync(collectTrajectory);
+    }
+
+    @Override
+    public void onExit(@Nullable State nextState) {
+        redAutoBase.getHardware().getMotors().get("intake").setPower(0);
+
     }
 
     @Nullable
     @Override
-    public State getNextState() {
+    public State getNextState()
+    {
+        if(!redAutoBase.getDrive().isBusy()){
+            redAutoBase.getTimerService().registerUniqueTimerEvent(750,"finishCollection",()->done=true );
+        }
+        if(done){
+            return new ExitWareHouse(redAutoBase,startPose);
+        }
         return null;
     }
 }

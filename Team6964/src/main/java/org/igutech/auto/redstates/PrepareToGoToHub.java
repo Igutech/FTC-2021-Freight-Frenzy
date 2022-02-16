@@ -14,7 +14,6 @@ public class PrepareToGoToHub extends State {
     private RedAutoPath autoPath;
     private Pose2d startPose;
     private TrajectorySequence prepareToGoToHub;
-    private boolean done = false;
 
     public PrepareToGoToHub(RedAutoPath autoPath, Pose2d startPose) {
         this.autoPath = autoPath;
@@ -22,9 +21,6 @@ public class PrepareToGoToHub extends State {
         prepareToGoToHub = autoPath.getDrive().trajectorySequenceBuilder(startPose)
                 .setReversed(true)
                 .splineTo(new Vector2d(-12, -45.0), Math.toRadians(90))
-                .addDisplacementMarker(() -> {
-                    done = true;
-                })
                 .build();
 
     }

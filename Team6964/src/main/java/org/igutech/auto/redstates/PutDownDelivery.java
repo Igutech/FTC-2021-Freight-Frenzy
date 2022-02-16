@@ -10,7 +10,7 @@ import dev.raneri.statelib.State;
 public class PutDownDelivery extends State {
     private RedAutoPath redAutoBase;
     private Pose2d startPose;
-
+    private boolean done = true;
     public PutDownDelivery(RedAutoPath autoBase, Pose2d startPose) {
         this.redAutoBase = autoBase;
         this.startPose = startPose;
@@ -24,7 +24,10 @@ public class PutDownDelivery extends State {
     @Nullable
     @Override
     public State getNextState() {
-        if (redAutoBase.getDelivery().getError() < 30) {
+        if (redAutoBase.getDelivery().getError() < 15) {
+            redAutoBase.getTimerService().registerUniqueTimerEvent(1000,"finishPutDownDelivery",()->done=true);
+        }
+        if(done){
             return new GoToHub(redAutoBase, startPose);
         }
         return null;
