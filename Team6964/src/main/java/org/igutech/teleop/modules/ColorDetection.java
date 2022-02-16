@@ -14,7 +14,9 @@ public class ColorDetection extends Module {
     private final float[] hsvValues = new float[3];
 
     public ColorDetection(Hardware hardware) {
+
         super(10, "ColorDetection");
+        this.hardware = hardware;
     }
 
     @Override
@@ -30,9 +32,13 @@ public class ColorDetection extends Module {
 
     }
 
-    public float[] getHsvValues() {
+    @Override
+    public void loop() {
         NormalizedRGBA colors = hardware.getColorSensors().get("colorSensor").getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
+    }
+
+    public float[] getHsvValues() {
         return hsvValues;
     }
 }
