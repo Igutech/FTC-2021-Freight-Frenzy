@@ -5,9 +5,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.igutech.auto.redstates.PrepareToGoToHub;
+import org.igutech.auto.redstates.GoToHub;
 import org.igutech.auto.roadrunner.SampleMecanumDrive;
-import org.igutech.auto.redstates.PutDownDelivery;
 import org.igutech.auto.vision.BarcodePipeline;
 import org.igutech.config.Hardware;
 import org.igutech.teleop.modules.ColorDetection;
@@ -28,6 +27,7 @@ public class RedAutoPath extends LinearOpMode {
     private Hardware hardware;
     private TimerService timerService;
     private Delivery delivery;
+    private Intake intake;
     private ColorDetection colorDetection;
     private SampleMecanumDrive drive;
     public static int pattern = 3;
@@ -39,6 +39,7 @@ public class RedAutoPath extends LinearOpMode {
         hardware = new Hardware(hardwareMap, false);
         timerService = new TimerService();
         delivery = new Delivery(hardware, timerService, false);
+        intake = new Intake(hardware, false);
         colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(10, -60, Math.toRadians(-90));
@@ -71,7 +72,7 @@ public class RedAutoPath extends LinearOpMode {
             }
             System.out.println("Exiting " + event.getInitialState().getClass().getName() + " and going into " + event.getFinalState().getClass().getName());
         });
-        transitioner.addLoopStartHandler(event -> System.out.println("Current state: " + event.getState().getClass().getName()+ " HSV VALUE: "+colorDetection.getHsvValues()[2]));
+        transitioner.addLoopStartHandler(event -> System.out.println("Current state: " + event.getState().getClass().getName() + " HSV VALUE: " + colorDetection.getHsvValues()[2]));
 
         while (!opModeIsActive() && !isStopRequested()) {
             telemetry.addData("ready", "");
@@ -85,7 +86,7 @@ public class RedAutoPath extends LinearOpMode {
         delivery.start();
 
         if (isStopRequested()) return;
-        transitioner.init(new PrepareToGoToHub(this, startPose));
+        transitioner.init(new GoToHub(this, startPose));
         drive.setPoseEstimate(startPose);
 
 
@@ -103,7 +104,7 @@ public class RedAutoPath extends LinearOpMode {
             timerService.loop();
             colorDetection.loop();
 
-            telemetry.addData("pose estimate",drive.getPoseEstimate());
+            telemetry.addData("pose estimate", drive.getPoseEstimate());
             telemetry.update();
         }
     }
@@ -130,5 +131,9 @@ public class RedAutoPath extends LinearOpMode {
 
     public ColorDetection getColorDetection() {
         return colorDetection;
+    }
+
+    public Intake getIntake() {
+        return intake;
     }
 }

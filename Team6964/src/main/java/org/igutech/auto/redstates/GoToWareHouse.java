@@ -20,9 +20,9 @@ public class GoToWareHouse extends State {
         this.startPose = startPose;
         goToWareHouse = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
                 .setReversed(false)
-                .splineToSplineHeading(new Pose2d(0, -62.0, Math.toRadians(-10.0)), Math.toRadians(-21.0))
-                .splineToSplineHeading(new Pose2d(0.0, -63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                .strafeRight(15)
+                .splineToSplineHeading(new Pose2d(5, -62.0, Math.toRadians(-10.0)), Math.toRadians(-21.0))
+                .splineToSplineHeading(new Pose2d(15.0, -63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .strafeRight(5)
                 .build();
 
     }

@@ -24,17 +24,13 @@ public class RelocalizePosition extends State {
         redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
         double pow = MagicValues.autoMotorPower;
         redAutoBase.getDrive().setMotorPowers(pow,pow,pow,pow);
-//        redAutoBase.getHardware().getMotors().get("frontleft").setPower(MagicValues.autoMotorPower);
-//        redAutoBase.getHardware().getMotors().get("frontright").setPower(MagicValues.autoMotorPower);
-//        redAutoBase.getHardware().getMotors().get("backleft").setPower(MagicValues.autoMotorPower);
-//        redAutoBase.getHardware().getMotors().get("backright").setPower(MagicValues.autoMotorPower);
     }
 
     @Override
     public void loop() {
         if (redAutoBase.getColorDetection().getHsvValues()[2] > 0.5) {
             redAutoBase.getDrive().setMotorPowers(0,0,0,0);
-            redAutoBase.getDrive().setPoseEstimate(new Pose2d(25, -63, 0));
+            redAutoBase.getDrive().setPoseEstimate(new Pose2d(25, -63.5, 0));
             done=true;
         }
     }
@@ -43,7 +39,7 @@ public class RelocalizePosition extends State {
     @Override
     public State getNextState() {
         if (done) {
-            return new Collect(redAutoBase, new Pose2d(30, -63.5, 0));
+            return new Collect(redAutoBase, new Pose2d(25, -63.5, 0));
         }
         return null;
     }
