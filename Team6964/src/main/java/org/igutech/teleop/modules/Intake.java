@@ -3,6 +3,7 @@ package org.igutech.teleop.modules;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 
+import org.igutech.config.Hardware;
 import org.igutech.teleop.Module;
 import org.igutech.teleop.Teleop;
 import org.igutech.utils.ButtonToggle;
@@ -29,25 +30,29 @@ public class Intake extends Module {
     private int[] positions;
     private IntakeLiftState intakeLiftState = IntakeLiftState.OFF;
 
-    private boolean shareShippingHubActive=false;
+    private boolean shareShippingHubActive = false;
 
+    private Hardware hardware;
+    private boolean isTeleop;
 
-
-    public Intake() {
+    public Intake(Hardware hardware, boolean isTeleop) {
         super(700, "Intake");
+        this.hardware = hardware;
+        this.isTeleop = isTeleop;
     }
 
     @Override
     public void init() {
-        gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
+        if (isTeleop) {
+            gamepadService = (GamepadService) Teleop.getInstance().getService("GamepadService");
+            intakeToggle = new ButtonToggle(1, "x", () -> {
+            });
+            intakeToggle.init();
+        }
         controller = new PIDFController(p, i, d, f);
         controller.init();
 
         positions = new int[]{0, 0, 160};
-
-        intakeToggle = new ButtonToggle(1, "x", () -> {
-        });
-        intakeToggle.init();
 
 
     }
@@ -63,9 +68,9 @@ public class Intake extends Module {
             case MANUAL:
                 double power = gamepadService.getAnalog(1, "left_trigger");
                 if (power > 0.1) {
-                    if(!shareShippingHubActive){
-                        Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
-                        Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
+                    if (!shareShippingHubActive) {
+                        hardware.getServos().get("deliveryServo").setPosition(0.73);
+                        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
                     }
 
                     power = Math.max(power, 0.5);
@@ -73,16 +78,16 @@ public class Intake extends Module {
                 if (!intakeToggle.getState()) {
                     power = power * -1;
                 }
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(power);
+                hardware.getMotors().get("intake").setPower(power);
                 break;
             case AUTO:
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(-1);
+                hardware.getMotors().get("intake").setPower(-1);
                 break;
             case MANUAL_REVERSE:
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(0.5);
+                hardware.getMotors().get("intake").setPower(0.5);
                 break;
             case WAITING:
-                Teleop.getInstance().getHardware().getMotors().get("intake").setPower(0);
+                hardware.getMotors().get("intake").setPower(0);
                 intakeState = IntakeState.OFF;
                 break;
             case OFF:
@@ -90,7 +95,7 @@ public class Intake extends Module {
 
         }
 
-        double currentPos = Teleop.getInstance().getHardware().getMotors().get("intakeLift").getCurrentPosition();
+        double currentPos = hardware.getMotors().get("intakeLift").getCurrentPosition();
         double targetPosition = positions[intakeLiftState.value];
         controller.setPIDFValues(p, i, d, f);
         controller.updateSetpoint(targetPosition);
@@ -100,19 +105,22 @@ public class Intake extends Module {
                 updatePID(targetPosition, currentPos);
                 break;
             case DOWN:
-                Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(0);
+                hardware.getMotors().get("intakeLift").setPower(0);
                 intakeLiftState = IntakeLiftState.OFF;
                 break;
             case OFF:
                 break;
 
         }
-        intakeToggle.loop();
+        if (isTeleop) {
+            intakeToggle.loop();
 
-        //Teleop.getInstance().telemetry.addData("Intake Position ", currentPos);
-        //Teleop.getInstance().telemetry.addData("Intake Target ", targetPosition);
-        Teleop.getInstance().telemetry.addData("Current Intake State ", intakeState);
-        Teleop.getInstance().telemetry.addData("Current Intake Lift State ", intakeLiftState);
+            //Teleop.getInstance().telemetry.addData("Intake Position ", currentPos);
+            //Teleop.getInstance().telemetry.addData("Intake Target ", targetPosition);
+            Teleop.getInstance().telemetry.addData("Current Intake State ", intakeState);
+            Teleop.getInstance().telemetry.addData("Current Intake Lift State ", intakeLiftState);
+        }
+
 
         FtcDashboard.getInstance().getTelemetry().addData("Intake Position", currentPos);
         FtcDashboard.getInstance().getTelemetry().addData("Intake Target  ", targetPosition);
@@ -126,7 +134,7 @@ public class Intake extends Module {
         pow = Math.min(pow, 0.9);
         pow = Math.max(pow, -1 * 0.9);
 
-        Teleop.getInstance().getHardware().getMotors().get("intakeLift").setPower(pow);
+        hardware.getMotors().get("intakeLift").setPower(pow);
 
         //Teleop.getInstance().telemetry.addData("Intake Power ", pow);
         FtcDashboard.getInstance().getTelemetry().addData("Intake Power ", pow);

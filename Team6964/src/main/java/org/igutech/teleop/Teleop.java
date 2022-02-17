@@ -37,11 +37,12 @@ public class Teleop extends OpMode {
     private ElapsedTime elapsedTime;
     private int loops = 0;
     private TimerService timerService = new TimerService();
+
     private void registerModules() {
 
         modules.add(new DriveTrain());
-        modules.add(new Delivery(hardware, timerService,true));
-        modules.add(new Intake());
+        modules.add(new Delivery(hardware, timerService, true));
+        modules.add(new Intake(hardware, true));
         modules.add(new Spinner());
         modules.add(new IntakeDeliver());
     }
@@ -132,7 +133,7 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         instance = this;
-        hardware = new Hardware(hardwareMap,true);
+        hardware = new Hardware(hardwareMap, true);
         modules = new ArrayList<>();
         timerService = new TimerService();
         registerModules();
