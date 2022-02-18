@@ -30,9 +30,11 @@ public class RedAutoPath extends LinearOpMode {
     private Intake intake;
     private ColorDetection colorDetection;
     private SampleMecanumDrive drive;
+    private RedTrajectory redTrajectories;
     public static int pattern = 3;
     public static Delivery.DeliveryState deliveryState = Delivery.DeliveryState.HIGH;
     private OpenCvCamera phoneCam;
+    private Pose2d startPose = new Pose2d(10, -60, Math.toRadians(-90));
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,7 +44,8 @@ public class RedAutoPath extends LinearOpMode {
         intake = new Intake(hardware, false);
         colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(10, -60, Math.toRadians(-90));
+        redTrajectories = new RedTrajectory(drive,startPose);
+        redTrajectories.init();
         hardware.getServos().get("deliveryServo").setPosition(0.73);
         hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
 
@@ -135,5 +138,9 @@ public class RedAutoPath extends LinearOpMode {
 
     public Intake getIntake() {
         return intake;
+    }
+
+    public RedTrajectory getRedTrajectories() {
+        return redTrajectories;
     }
 }

@@ -17,10 +17,7 @@ public class ExitWareHouse extends State {
     public ExitWareHouse(RedAutoPath redAutoPath, Pose2d startPose) {
         this.redAutoPath = redAutoPath;
         this.startPose = startPose;
-        exitWareHouse = redAutoPath.getDrive().trajectorySequenceBuilder(startPose)
-                .setReversed(true)
-                .splineToSplineHeading(new Pose2d(3.0, -62.5, Math.toRadians(-10.0)), Math.toRadians(170.0))
-                .build();
+        exitWareHouse = redAutoPath.getRedTrajectories().exitWareHouse;
     }
 
     @Override

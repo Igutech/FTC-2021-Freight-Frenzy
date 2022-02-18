@@ -19,10 +19,7 @@ public class GoToHub extends State {
     public GoToHub(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
-        goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
-                .setReversed(true)
-                .splineTo(new Vector2d(-4.5, -40.0), Math.toRadians(112.0))
-                .build();
+        goToHub = redAutoBase.getRedTrajectories().goToHub;
     }
 
     @Override
