@@ -21,15 +21,15 @@ public class Delivery extends Module {
     private ButtonToggle lowToggle;
     private PIDFController controller;
     private Hardware hardware;
-    public static double p = 0.005;
+    public static double p = 0.008;
     public static double i = 0;
-    public static double d = 0;
+    public static double d = 0.00013;
     public static double f = 0;
     public static double maxPower = 0.8;
     private boolean teleop;
     private int[] deliveryPosition;
     private DeliveryState extendDeliveryState = DeliveryState.HIGH;
-    private DeliveryState currentDeliveryState = DeliveryState.OFF;
+    public static DeliveryState currentDeliveryState = DeliveryState.OFF;
     private ButtonToggle deliveryToggle;
     private ButtonToggle holderToggle;
     private ButtonToggle safety;
@@ -90,7 +90,7 @@ public class Delivery extends Module {
 
         }
 
-        deliveryPosition = new int[]{-100, 0, 0, -600, -520, -345};
+        deliveryPosition = new int[]{-100, 0, 0, -600, -530, -400};
         controller.init();
 
 
