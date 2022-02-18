@@ -22,6 +22,7 @@ public class ExitWareHouse extends State {
 
     @Override
     public void onEntry(@Nullable State previousState) {
+        redAutoPath.getDrive().setPoseEstimate(new Pose2d(24, -63.5, 0));
         redAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.UP);
         redAutoPath.getIntake().setIntakeState(Intake.IntakeState.AUTO);
 
