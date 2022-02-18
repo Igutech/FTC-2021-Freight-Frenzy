@@ -27,7 +27,7 @@ public class Collect extends State {
     public void onEntry(@Nullable State previousState) {
         redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
         double pow = MagicValues.autoMotorPowerForward;
-        redAutoBase.getDrive().setMotorPowers(pow,pow,pow,pow);
+        redAutoBase.getDrive().setMotorPowers(pow,pow*2,pow,pow*2);
         redAutoBase.getTimerService().registerSingleTimerEvent((int) MagicValues.collectTime,()->done=true);
     }
 

@@ -27,7 +27,6 @@ public class RedTrajectory {
                 .setReversed(false)
                 .splineToSplineHeading(new Pose2d(5, -62.0, Math.toRadians(-10.0)), Math.toRadians(-21.0))
                 .splineToSplineHeading(new Pose2d(15.0, -63.5, Math.toRadians(0.0)), Math.toRadians(0.0))
-                .strafeRight(5)
                 .build();
         exitWareHouse = sampleMecanumDrive.trajectorySequenceBuilder( new Pose2d(24, -63.5, 0))
                 .setReversed(true)
