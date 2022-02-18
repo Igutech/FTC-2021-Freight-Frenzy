@@ -36,7 +36,7 @@ public class GoToWareHouse extends State {
     @Override
     public State getNextState() {
         if (!redAutoBase.getDrive().isBusy()) {
-            return new RelocalizePosition(redAutoBase, goToWareHouse.end());
+            return new Collect(redAutoBase, goToWareHouse.end());
         }
         return null;
     }

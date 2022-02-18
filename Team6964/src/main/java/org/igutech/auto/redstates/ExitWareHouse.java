@@ -19,8 +19,7 @@ public class ExitWareHouse extends State {
         this.startPose = startPose;
         exitWareHouse = redAutoPath.getDrive().trajectorySequenceBuilder(startPose)
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(19.0, -63.5, Math.toRadians(0.0)), Math.toRadians(180.0))
-                .splineToSplineHeading(new Pose2d(9.0, -62.5, Math.toRadians(-10.0)), Math.toRadians(170.0))
+                .splineToSplineHeading(new Pose2d(3.0, -62.5, Math.toRadians(-10.0)), Math.toRadians(170.0))
                 .build();
     }
 

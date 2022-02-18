@@ -19,18 +19,26 @@ public class RelocalizePosition extends State {
         this.startPose = startPose;
     }
 
+
+    //    @Override
+    //    public void setMotorPowers(double v, double v1, double v2, double v3) {
+    //        leftFront.setPower(v);
+    //        leftRear.setPower(v1);
+    //        rightRear.setPower(v2);
+    //        rightFront.setPower(v3);
+    //    }
+
     @Override
     public void onEntry(@Nullable State previousState) {
-        redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
-        double pow = MagicValues.autoMotorPower;
-        redAutoBase.getDrive().setMotorPowers(pow,pow,pow,pow);
+        double pow = MagicValues.autoMotorPowerBackward;
+        redAutoBase.getDrive().setMotorPowers(pow,pow*2,pow,pow*2);
     }
 
     @Override
     public void loop() {
         if (redAutoBase.getColorDetection().getHsvValues()[2] > 0.5) {
             redAutoBase.getDrive().setMotorPowers(0,0,0,0);
-            redAutoBase.getDrive().setPoseEstimate(new Pose2d(25, -63.5, 0));
+            redAutoBase.getDrive().setPoseEstimate(new Pose2d(24, -63.5, 0));
             done=true;
         }
     }
@@ -39,7 +47,7 @@ public class RelocalizePosition extends State {
     @Override
     public State getNextState() {
         if (done) {
-            return new Collect(redAutoBase, new Pose2d(25, -63.5, 0));
+            return new ExitWareHouse(redAutoBase, new Pose2d(24, -63.5, 0));
         }
         return null;
     }

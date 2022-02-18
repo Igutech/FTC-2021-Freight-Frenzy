@@ -28,17 +28,19 @@ public class ColorDetection extends Module {
     }
 
     public NormalizedRGBA getRGBA() {
+
         return hardware.getColorSensors().get("colorSensor").getNormalizedColors();
 
     }
 
     @Override
     public void loop() {
-        NormalizedRGBA colors = hardware.getColorSensors().get("colorSensor").getNormalizedColors();
-        Color.colorToHSV(colors.toColor(), hsvValues);
+
     }
 
     public float[] getHsvValues() {
+        NormalizedRGBA colors = hardware.getColorSensors().get("colorSensor").getNormalizedColors();
+        Color.colorToHSV(colors.toColor(), hsvValues);
         return hsvValues;
     }
 }
