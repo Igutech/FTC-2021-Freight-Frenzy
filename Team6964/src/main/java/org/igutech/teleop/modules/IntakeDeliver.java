@@ -38,12 +38,20 @@ public class IntakeDeliver extends Module {
                     timerService.registerUniqueTimerEvent(750, "intakeLiftUp", () -> intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.UP));
                 },
                 () -> {
-                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
-                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
+                    Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPushShared);
+                    timerService.registerSingleTimerEvent(300,()->{
+                        intakeInstance.setIntakeState(Intake.IntakeState.OFF);
+                        Teleop.getInstance().getHardware().getMotors().get("intake").setPower(MagicValues.intakePower);
+                    });
                 },
                 () -> {
                     intakeInstance.setShareShippingHubActive(false);
                     intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.DOWN);
+                    intakeInstance.setIntakeState(Intake.IntakeState.MANUAL);
+                    timerService.registerSingleTimerEvent(250, () ->{
+                        Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
+                    });
+
                 }
         );
         intakeLiftToggle = new ButtonToggle(1, "left_bumper", () -> {
