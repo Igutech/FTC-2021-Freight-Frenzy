@@ -31,12 +31,12 @@ public class RedAutoPath extends LinearOpMode {
     private Intake intake;
     private ColorDetection colorDetection;
     private SampleMecanumDrive drive;
-    private RedTrajectory redTrajectories;
     public static int pattern = 3;
     public static Delivery.DeliveryState deliveryState = Delivery.DeliveryState.HIGH;
     private OpenCvCamera phoneCam;
     private Pose2d startPose = new Pose2d(10, -60, Math.toRadians(0));
-    private int cycle=0;
+    private int cycle = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
         hardware = new Hardware(hardwareMap, false);
@@ -45,8 +45,6 @@ public class RedAutoPath extends LinearOpMode {
         intake = new Intake(hardware, false);
         colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
-        redTrajectories = new RedTrajectory(drive,startPose);
-        redTrajectories.init();
         hardware.getServos().get("deliveryServo").setPosition(0.73);
         hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
 
@@ -91,9 +89,9 @@ public class RedAutoPath extends LinearOpMode {
         delivery.start();
 
         if (isStopRequested()) return;
-        if(pattern==2){
+        if (pattern == 2) {
             transitioner.init(new GoToHubMiddle(this, startPose));
-        }else{
+        } else {
             transitioner.init(new GoToHubHigh(this, startPose));
         }
         drive.setPoseEstimate(startPose);
@@ -146,14 +144,11 @@ public class RedAutoPath extends LinearOpMode {
         return intake;
     }
 
-    public RedTrajectory getRedTrajectories() {
-        return redTrajectories;
-    }
-
     public int getCycle() {
         return cycle;
     }
-    public void addCycle(){
-        cycle+=1;
+
+    public void addCycle() {
+        cycle += 1;
     }
 }
