@@ -1,5 +1,6 @@
 package org.igutech.auto.bluestates;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
@@ -9,13 +10,13 @@ import org.igutech.utils.MagicValues;
 import org.jetbrains.annotations.Nullable;
 
 import dev.raneri.statelib.State;
-
+@Config
 public class BlueGoToHubLow extends State {
     private org.igutech.auto.BlueAutoPath blueAutoPath;
     private Pose2d startPose;
     private TrajectorySequence goToHub;
     public static double x = -5;
-    public static double y = 52;
+    public static double y = 40;
     public static double theta = 75;
 
     public BlueGoToHubLow(org.igutech.auto.BlueAutoPath blueAutoPath, Pose2d startPose) {
@@ -32,9 +33,15 @@ public class BlueGoToHubLow extends State {
     public void onEntry(@Nullable State previousState) {
         blueAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         blueAutoPath.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
-        blueAutoPath.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
-        blueAutoPath.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
-        blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(3);
+        if(blueAutoPath.getCycle()==0){
+            blueAutoPath.getTimerService().registerSingleTimerEvent(1250,()->{
+                blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(blueAutoPath.getPattern());
+            });
+        }else{
+            blueAutoPath.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+            blueAutoPath.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
+            blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(blueAutoPath.getPattern());
+        }
         blueAutoPath.getDrive().followTrajectorySequenceAsync(goToHub);
 
     }

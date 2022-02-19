@@ -18,14 +18,15 @@ public class BlueGoToHub extends State {
     private Pose2d startPose;
     private TrajectorySequence goToHub;
     public static double x = -5;
-    public static double y = 45;
-    public static double theta = 225;
+    public static double y = 35;
+    public static double theta = 75;
 
     public BlueGoToHub(BlueAutoPath blueAutoPath, Pose2d startPose) {
         this.blueAutoPath = blueAutoPath;
         this.startPose = startPose;
         goToHub = blueAutoPath.getDrive().trajectorySequenceBuilder(startPose)
-                .splineTo(new Vector2d(-5, 45), Math.toRadians(theta))
+                .lineToLinearHeading(new Pose2d(x, y, Math.toRadians(theta)))
+
                 .build();
     }
 

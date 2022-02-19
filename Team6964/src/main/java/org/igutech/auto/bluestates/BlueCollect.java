@@ -28,9 +28,9 @@ public class BlueCollect extends State {
     public void onEntry(@Nullable State previousState) {
         blueAutoPath.getHardware().getMotors().get("intake").setPower(-1);
 
-        double pow = MagicValues.autoMotorPowerForward;
-        blueAutoPath.getDrive().setMotorPowers(pow, -pow, pow, -pow);
-        blueAutoPath.getTimerService().registerSingleTimerEvent(500, () -> blueAutoPath.getDrive().setMotorPowers(pow * 2, pow, pow * 2, pow));
+        double pow = MagicValues.autoMotorPowerForwardBlue;
+        blueAutoPath.getDrive().setMotorPowers(-pow, pow, -pow, pow);
+        blueAutoPath.getTimerService().registerSingleTimerEvent(500, () -> blueAutoPath.getDrive().setMotorPowers(pow , pow*2, pow, pow*2));
 
         if(blueAutoPath.getCycle()==1){
             blueAutoPath.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectDriveTimeFirst, () -> {
@@ -48,11 +48,8 @@ public class BlueCollect extends State {
             blueAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.UP);
         });
         blueAutoPath.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectStopTime, () -> {
-            blueAutoPath.getIntake().setIntakeState(Intake.IntakeState.MANUAL_REVERSE);
-            blueAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
+            done = true;
         });
-        blueAutoPath.getTimerService().registerSingleTimerEvent(1000 + (int) MagicValues.collectStopTime, () -> blueAutoPath.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown));
-        blueAutoPath.getTimerService().registerSingleTimerEvent(1250 + (int) MagicValues.collectStopTime, () -> done=true);
     }
 
     @Override

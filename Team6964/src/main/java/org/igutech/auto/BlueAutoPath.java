@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.igutech.auto.bluestates.*;
 import org.igutech.auto.roadrunner.SampleMecanumDrive;
@@ -46,7 +47,6 @@ public class BlueAutoPath extends LinearOpMode {
         colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
         hardware.getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
-        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
 
         timerService.init();
         delivery.init();
@@ -54,7 +54,7 @@ public class BlueAutoPath extends LinearOpMode {
         intake.init();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-        BarcodePipeline pipeline = new BarcodePipeline();
+        BarcodePipeline pipeline = new BarcodePipeline(false);
         phoneCam.setPipeline(pipeline);
 
         phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -87,13 +87,20 @@ public class BlueAutoPath extends LinearOpMode {
 
         timerService.start();
         delivery.start();
+        hardware.getMotors().get("intakeLift").setPower(0.8);
+        timerService.registerSingleTimerEvent(250, () -> hardware.getMotors().get("intakeLift").setPower(-0.3));
+        timerService.registerSingleTimerEvent(500, () -> {
+            hardware.getMotors().get("intakeLift").setPower(0);
+            hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+            hardware.getMotors().get("intakeLift").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            hardware.getMotors().get("intakeLift").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        });
 
         if (isStopRequested()) return;
         if (pattern == 2) {
             transitioner.init(new BlueGoToHubMiddle(this, startPose));
         } else if (pattern == 1) {
             transitioner.init(new BlueGoToHubLow(this, startPose));
-
         } else {
             transitioner.init(new BlueGoToHubHigh(this, startPose));
         }

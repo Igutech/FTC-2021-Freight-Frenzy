@@ -15,6 +15,7 @@ public class MagicValues {
     public static double colorSensorGain = 2.0;
 
     public static double autoMotorPowerForward=0.25;
+    public static double autoMotorPowerForwardBlue=0.35;
     public static double autoMotorPowerBackward=-0.2;
 
     public static double collectDriveTimeFirst =1500;

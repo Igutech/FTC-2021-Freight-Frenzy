@@ -18,14 +18,13 @@ public class BlueGoToHubHigh extends State {
     private Pose2d startPose;
     private TrajectorySequence goToHub;
     public static double x = -5;
-    public static double y = 45;
+    public static double y = 30;
     public static double theta = 75;
 
     public BlueGoToHubHigh(BlueAutoPath blueAutoPath, Pose2d startPose) {
         this.blueAutoPath = blueAutoPath;
         this.startPose = startPose;
         goToHub = blueAutoPath.getDrive().trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(10, 55))
                 .lineToLinearHeading(new Pose2d(x, y, Math.toRadians(theta)))
                 .build();
     }
@@ -35,9 +34,16 @@ public class BlueGoToHubHigh extends State {
     public void onEntry(@Nullable State previousState) {
         blueAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         blueAutoPath.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
-        blueAutoPath.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
-        blueAutoPath.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
-        blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(3);
+        if(blueAutoPath.getCycle()==0){
+            blueAutoPath.getTimerService().registerSingleTimerEvent(1250,()->{
+                blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(3);
+            });
+        }else{
+            blueAutoPath.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+            blueAutoPath.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
+            blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(3);
+
+        }
         blueAutoPath.getDrive().followTrajectorySequenceAsync(goToHub);
 
     }

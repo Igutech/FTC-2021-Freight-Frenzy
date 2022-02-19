@@ -12,13 +12,14 @@ public class BlueGoToWareHouse extends State {
     private BlueAutoPath blueAutoPath;
     private Pose2d startPose;
     private TrajectorySequence goToWareHouse;
-    public static double x = 12;
+    public static double x = 10;
+    public static double y = 60;
 
     public BlueGoToWareHouse(BlueAutoPath blueAutoPath, Pose2d startPose) {
         this.blueAutoPath = blueAutoPath;
         this.startPose = startPose;
         goToWareHouse = blueAutoPath.getDrive().trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(10, 60.0, Math.toRadians(0.0)), Math.toRadians(0.0))
+                .lineToLinearHeading(new Pose2d(x, y, Math.toRadians(0.0)))
                 .build();
 
     }

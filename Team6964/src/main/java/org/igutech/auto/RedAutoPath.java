@@ -55,7 +55,7 @@ public class RedAutoPath extends LinearOpMode {
         intake.init();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-        BarcodePipeline pipeline = new BarcodePipeline();
+        BarcodePipeline pipeline = new BarcodePipeline(true);
         phoneCam.setPipeline(pipeline);
 
         phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
