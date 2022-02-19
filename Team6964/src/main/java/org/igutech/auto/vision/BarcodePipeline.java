@@ -26,19 +26,23 @@ public class BarcodePipeline extends OpenCvPipeline {
 
 
     public static int right_one = 160;
-    public static int right_two = 230;
-    public static int right_three = 190;
-    public static int right_four = 250;
+    public static int right_two = 210;
+    public static int right_three = 180;
+    public static int right_four = 230;
 
-    public static int left_one = 160;
-    public static int left_two = 110;
-    public static int left_three = 190;
-    public static int left_four = 130;
+    public static int left_one = 165;
+    public static int left_two = 95;
+    public static int left_three = 185;
+    public static int left_four = 105;
     public Scalar left_mean;
     public Scalar right_mean;
+    private boolean isRed;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
+    public BarcodePipeline(boolean isRed) {
+        this.isRed = isRed;
+    }
 
     @Override
     public Mat processFrame(Mat input) {
@@ -93,14 +97,23 @@ public class BarcodePipeline extends OpenCvPipeline {
 
 
 
-        if(Math.abs(left-right)<=15){
-            pattern=3;
-        }else if(left>right){
-            pattern=1;
-        }else if(right>left){
-            pattern=2;
+        if(isRed){
+            if(Math.abs(left-right)<=15){
+                pattern=3;
+            }else if(left>right){
+                pattern=1;
+            }else if(right>left){
+                pattern=2;
+            }
+        }else{
+            if(Math.abs(left-right)<=15){
+                pattern=1;
+            }else if(left>right){
+                pattern=2;
+            }else if(right>left){
+                pattern=3;
+            }
         }
-
         return input;
 
     }
