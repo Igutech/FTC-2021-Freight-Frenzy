@@ -16,9 +16,12 @@ public class GoToHubHigh extends State {
     private RedAutoPath redAutoBase;
     private Pose2d startPose;
     private TrajectorySequence goToHub;
-    public static double x=-14.5;
+//    public static double x=-14.5;
+//    public static double y=-41;
+//    public static double theta=90;
+    public static double x=-6;
     public static double y=-41;
-    public static double theta=90;
+    public static double theta=115;
     public GoToHubHigh(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
