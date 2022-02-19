@@ -72,7 +72,7 @@ public class Intake extends Module {
                     double power = gamepadService.getAnalog(1, "left_trigger");
                     if (power > 0.1) {
                         if (!shareShippingHubActive) {
-                            hardware.getServos().get("deliveryServo").setPosition(0.73);
+                            hardware.getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
                             hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
                         }
 

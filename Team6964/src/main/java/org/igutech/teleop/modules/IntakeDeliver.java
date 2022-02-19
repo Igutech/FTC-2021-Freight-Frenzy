@@ -70,7 +70,7 @@ public class IntakeDeliver extends Module {
             deliveryInstance.setDeliveryStatus(true);
         }, () -> {
             Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
-            Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(0.73);
+            Teleop.getInstance().getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
             deliveryInstance.setDeliveryStatus(false);
         });
 

@@ -65,12 +65,12 @@ public class Delivery extends Module {
             middleToggle.init();
             lowToggle.init();
 
-            hardware.getServos().get("deliveryServo").setPosition(0.73);
+            hardware.getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
             hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
 
             deliveryToggle = new ButtonToggle(2, "y",
                     () -> hardware.getServos().get("deliveryServo").setPosition(0.93),
-                    () -> hardware.getServos().get("deliveryServo").setPosition(0.73));
+                    () -> hardware.getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown));
             deliveryToggle.init();
 
             holderToggle = new ButtonToggle(2, "a", () -> holderToggleActions.call());
