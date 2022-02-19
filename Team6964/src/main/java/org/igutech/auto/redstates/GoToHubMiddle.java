@@ -1,6 +1,5 @@
 package org.igutech.auto.redstates;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
@@ -11,20 +10,24 @@ import org.igutech.utils.MagicValues;
 import org.jetbrains.annotations.Nullable;
 
 import dev.raneri.statelib.State;
-@Config
-public class GoToHubHigh extends State {
+
+public class GoToHubMiddle extends State {
     private RedAutoPath redAutoBase;
     private Pose2d startPose;
     private TrajectorySequence goToHub;
-    public static double x=-14.5;
-    public static double y=-41;
-    public static double theta=90;
-    public GoToHubHigh(RedAutoPath redAutoBase, Pose2d startPose) {
+//    public static double x=-6;
+//    public static double y=-45;
+//    public static double theta=115;
+    public static double x=-6;
+    public static double y=-45;
+    public static double theta=-75;
+    public GoToHubMiddle(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
         goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
+                .lineToConstantHeading(new Vector2d(10,-53))
                 .setReversed(true)
-                .splineTo(new Vector2d(x, y), Math.toRadians(theta))
+                .lineToLinearHeading(new Pose2d(x, y,Math.toRadians(theta)))
                 .build();
     }
 
@@ -34,7 +37,7 @@ public class GoToHubHigh extends State {
         redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
         redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
         redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
-        redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(3);
+        redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(redAutoBase.getPattern());
         redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
 
     }

@@ -21,20 +21,28 @@ public class Deliver extends State {
 
     @Override
     public void onEntry(@Nullable State previousState) {
+        redAutoBase.addCycle();
         redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoUp);
         redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
-        done = true;
         redAutoBase.getTimerService().registerUniqueTimerEvent(500, "moveToWareHouse", () -> {
             redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
             redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
             redAutoBase.getDelivery().setDeliveryStatus(false);
+            done = true;
         });
+    }
+
+    @Override
+    public void onExit(@Nullable State nextState) {
     }
 
     @Nullable
     @Override
     public State getNextState() {
         if (done) {
+            if(redAutoBase.getCycle()==1 && redAutoBase.getPattern()==2){
+                return new GoToWareHouseMiddle(redAutoBase,startPose);
+            }
             return new GoToWareHouse(redAutoBase, startPose);
         }
         return null;

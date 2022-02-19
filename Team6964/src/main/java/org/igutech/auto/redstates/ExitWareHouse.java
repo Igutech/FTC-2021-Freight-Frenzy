@@ -1,10 +1,10 @@
 package org.igutech.auto.redstates;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.igutech.auto.RedAutoPath;
 import org.igutech.auto.roadrunner.trajectorysequence.TrajectorySequence;
-import org.igutech.teleop.modules.Intake;
 import org.jetbrains.annotations.Nullable;
 
 import dev.raneri.statelib.State;
@@ -17,15 +17,16 @@ public class ExitWareHouse extends State {
     public ExitWareHouse(RedAutoPath redAutoPath, Pose2d startPose) {
         this.redAutoPath = redAutoPath;
         this.startPose = startPose;
-        exitWareHouse = redAutoPath.getRedTrajectories().exitWareHouse;
+        exitWareHouse = redAutoPath.getDrive().trajectorySequenceBuilder( new Pose2d(24, -63.5, 0))
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(3.0, -62.5, Math.toRadians(-10.0)), Math.toRadians(170.0))
+                .build();
     }
 
     @Override
     public void onEntry(@Nullable State previousState) {
-        redAutoPath.getDrive().setPoseEstimate(new Pose2d(24, -63.5, 0));
-        redAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.UP);
-        redAutoPath.getIntake().setIntakeState(Intake.IntakeState.AUTO);
-
+        redAutoPath.getHardware().getMotors().get("delivery").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        redAutoPath.getHardware().getMotors().get("delivery").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         redAutoPath.getDrive().followTrajectorySequenceAsync(exitWareHouse);
     }
 
@@ -33,7 +34,7 @@ public class ExitWareHouse extends State {
     @Override
     public State getNextState() {
         if (!redAutoPath.getDrive().isBusy()) {
-            return new GoToHub(redAutoPath, exitWareHouse.end());
+            return new GoToHubHigh(redAutoPath, exitWareHouse.end());
         }
         return null;
     }

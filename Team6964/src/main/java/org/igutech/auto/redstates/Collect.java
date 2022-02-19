@@ -1,10 +1,11 @@
 package org.igutech.auto.redstates;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.igutech.auto.RedAutoPath;
 import org.igutech.auto.roadrunner.trajectorysequence.TrajectorySequence;
+import org.igutech.teleop.modules.Intake;
 import org.igutech.utils.MagicValues;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,33 +16,53 @@ public class Collect extends State {
     private Pose2d startPose;
     private boolean done = false;
     private TrajectorySequence collectTrajectory;
+
     public Collect(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
-//        collectTrajectory = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
-//                .lineToLinearHeading(new Pose2d(45, -63.5,0))
-//                .build();
     }
+
 
     @Override
     public void onEntry(@Nullable State previousState) {
         redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
+
         double pow = MagicValues.autoMotorPowerForward;
-        redAutoBase.getDrive().setMotorPowers(pow,pow*2,pow,pow*2);
-        redAutoBase.getTimerService().registerSingleTimerEvent((int) MagicValues.collectTime,()->done=true);
+        redAutoBase.getDrive().setMotorPowers(pow, -pow, pow, -pow);
+        redAutoBase.getTimerService().registerSingleTimerEvent(500, () -> redAutoBase.getDrive().setMotorPowers(pow * 2, pow, pow * 2, pow));
+
+        if(redAutoBase.getCycle()==1){
+            redAutoBase.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectDriveTimeFirst, () -> {
+                redAutoBase.getDrive().setMotorPowers(0, 0, 0, 0);
+            });
+        }else{
+            redAutoBase.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectDriveTimeSecond, () -> {
+                redAutoBase.getDrive().setMotorPowers(0, 0, 0, 0);
+            });
+        }
+
+        redAutoBase.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectTime, () -> {
+            redAutoBase.getHardware().getMotors().get("intake").setPower(0);
+            redAutoBase.getIntake().setIntakeState(Intake.IntakeState.AUTO);
+            redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.UP);
+        });
+        redAutoBase.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectStopTime, () -> {
+            redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL_REVERSE);
+            redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
+        });
+        redAutoBase.getTimerService().registerSingleTimerEvent(1000 + (int) MagicValues.collectStopTime, () -> redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown));
+        redAutoBase.getTimerService().registerSingleTimerEvent(1250 + (int) MagicValues.collectStopTime, () -> done=true);
     }
 
     @Override
     public void onExit(@Nullable State nextState) {
-        redAutoBase.getHardware().getMotors().get("intake").setPower(0);
     }
 
     @Nullable
     @Override
-    public State getNextState()
-    {
-        if(done){
-            return new RelocalizePosition(redAutoBase,startPose);
+    public State getNextState() {
+        if (done) {
+            return new RelocalizePosition(redAutoBase, startPose);
         }
         return null;
     }

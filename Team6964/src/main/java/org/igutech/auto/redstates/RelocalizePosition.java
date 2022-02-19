@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.igutech.auto.RedAutoPath;
 import org.igutech.teleop.Teleop;
+import org.igutech.teleop.modules.Intake;
 import org.igutech.utils.MagicValues;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,14 +21,6 @@ public class RelocalizePosition extends State {
     }
 
 
-    //    @Override
-    //    public void setMotorPowers(double v, double v1, double v2, double v3) {
-    //        leftFront.setPower(v);
-    //        leftRear.setPower(v1);
-    //        rightRear.setPower(v2);
-    //        rightFront.setPower(v3);
-    //    }
-
     @Override
     public void onEntry(@Nullable State previousState) {
         double pow = MagicValues.autoMotorPowerBackward;
@@ -41,6 +34,12 @@ public class RelocalizePosition extends State {
             redAutoBase.getDrive().setPoseEstimate(new Pose2d(24, -63.5, 0));
             done=true;
         }
+    }
+
+    @Override
+    public void onExit(@Nullable State nextState) {
+        redAutoBase.getIntake().setIntakeState(Intake.IntakeState.WAITING);
+
     }
 
     @Nullable
