@@ -34,6 +34,7 @@ public class IntakeDeliver extends Module {
         sharedHubActions = new CycleableAction(
                 () -> {
                     intakeInstance.setShareShippingHubActive(true);
+                    intakeInstance.setIntakeState(Intake.IntakeState.SHARED);
                     Teleop.getInstance().getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
                     timerService.registerUniqueTimerEvent(750, "intakeLiftUp", () -> intakeInstance.setIntakeLiftState(Intake.IntakeLiftState.UP));
                 },

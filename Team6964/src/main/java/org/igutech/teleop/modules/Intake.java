@@ -91,6 +91,9 @@ public class Intake extends Module {
             case MANUAL_REVERSE:
                 hardware.getMotors().get("intake").setPower(0.5);
                 break;
+            case SHARED:
+                hardware.getMotors().get("intake").setPower(-0.3);
+                break;
             case WAITING:
                 hardware.getMotors().get("intake").setPower(0);
                 intakeState = IntakeState.OFF;
@@ -148,6 +151,7 @@ public class Intake extends Module {
 
 
     public enum IntakeState {
+        SHARED,
         MANUAL_REVERSE,
         AUTO,
         MANUAL,
