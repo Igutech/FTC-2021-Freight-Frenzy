@@ -40,8 +40,8 @@ public class Deliver extends State {
     @Override
     public State getNextState() {
         if (done) {
-            if(redAutoBase.getCycle()==1 && redAutoBase.getPattern()==2){
-                return new GoToWareHouseMiddle(redAutoBase,startPose);
+            if (redAutoBase.getCycle() == 1 && (redAutoBase.getPattern() == 2 || redAutoBase.getPattern() == 1)) {
+                return new GoToWareHouseMiddle(redAutoBase, startPose);
             }
             return new GoToWareHouse(redAutoBase, startPose);
         }
