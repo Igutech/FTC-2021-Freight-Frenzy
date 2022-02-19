@@ -55,7 +55,7 @@ public class TimerService extends Service {
 
     public TimerService registerUniqueTimerEvent(long time, String name, Callback m) {
         for (SingleTimerEvent event : events) {
-            if (event.getName().equals(name)) {
+            if (event.getName()!=null && event.getName().equals(name)) {
                 return this;
             }
         }
