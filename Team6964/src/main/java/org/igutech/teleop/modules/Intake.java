@@ -2,6 +2,7 @@ package org.igutech.teleop.modules;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 
 import org.igutech.config.Hardware;
 import org.igutech.teleop.Module;
@@ -16,16 +17,17 @@ import dev.scratch.simplestatemachine.StateMachine;
 import dev.scratch.simplestatemachine.StateMachineBuilder;
 import dev.scratch.simplestatemachine.Transition;
 import dev.scratch.simplestatemachine.TransitionBuilder;
-
+@Config
 public class Intake extends Module {
 
     private GamepadService gamepadService;
     private ButtonToggle intakeToggle;
     private IntakeState intakeState = IntakeState.MANUAL;
-    public static double p = 0.008;
+    public static double p = 0.009;
     public static double i = 0;
     public static double d = 0.00013;
-    public static double f = 0.0007;
+    public static double f = 0.0009;
+    //public static double targetPosition = 180;
     private PIDFController controller;
     private int[] positions;
     private IntakeLiftState intakeLiftState = IntakeLiftState.OFF;
@@ -52,7 +54,7 @@ public class Intake extends Module {
         controller = new PIDFController(p, i, d, f);
         controller.init();
 
-        positions = new int[]{0, 0, 160};
+        positions = new int[]{0, 0, 180};
 
 
     }
@@ -66,19 +68,22 @@ public class Intake extends Module {
     public void loop() {
         switch (intakeState) {
             case MANUAL:
-                double power = gamepadService.getAnalog(1, "left_trigger");
-                if (power > 0.1) {
-                    if (!shareShippingHubActive) {
-                        hardware.getServos().get("deliveryServo").setPosition(0.73);
-                        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
-                    }
+                if(isTeleop){
+                    double power = gamepadService.getAnalog(1, "left_trigger");
+                    if (power > 0.1) {
+                        if (!shareShippingHubActive) {
+                            hardware.getServos().get("deliveryServo").setPosition(0.73);
+                            hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
+                        }
 
-                    power = Math.max(power, 0.5);
+                        power = Math.max(power, 0.5);
+                    }
+                    if (!intakeToggle.getState()) {
+                        power = power * -1;
+                    }
+                    hardware.getMotors().get("intake").setPower(power);
                 }
-                if (!intakeToggle.getState()) {
-                    power = power * -1;
-                }
-                hardware.getMotors().get("intake").setPower(power);
+
                 break;
             case AUTO:
                 hardware.getMotors().get("intake").setPower(-1);

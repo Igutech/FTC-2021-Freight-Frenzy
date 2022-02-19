@@ -1,5 +1,6 @@
 package org.igutech.auto.redstates;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
@@ -10,16 +11,26 @@ import org.igutech.utils.MagicValues;
 import org.jetbrains.annotations.Nullable;
 
 import dev.raneri.statelib.State;
-
+@Config
 public class GoToHub extends State {
     private RedAutoPath redAutoBase;
     private Pose2d startPose;
     private TrajectorySequence goToHub;
 
+    public static double x=-14.5;
+    public static double y=-41;
+    public static double theta=90;
     public GoToHub(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
-        goToHub = redAutoBase.getRedTrajectories().goToHub;
+        Pose2d target = redAutoBase.getRedTrajectories().highHubPose;
+        if(redAutoBase.getCycle()==0 && redAutoBase.getPattern()==2){
+            target = redAutoBase.getRedTrajectories().middleHubPose;
+        }
+        goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
+                .setReversed(true)
+                .splineTo(new Vector2d(target.getX(), target.getY()), Math.toRadians(target.getHeading()))
+                .build();
     }
 
     @Override
