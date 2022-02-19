@@ -47,11 +47,8 @@ public class Collect extends State {
             redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.UP);
         });
         redAutoBase.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectStopTime, () -> {
-            redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL_REVERSE);
-            redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
+            done = true;
         });
-        redAutoBase.getTimerService().registerSingleTimerEvent(1000 + (int) MagicValues.collectStopTime, () -> redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown));
-        redAutoBase.getTimerService().registerSingleTimerEvent(1250 + (int) MagicValues.collectStopTime, () -> done=true);
     }
 
     @Override

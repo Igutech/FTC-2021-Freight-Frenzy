@@ -4,8 +4,10 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.igutech.auto.redstates.GoToHubHigh;
+import org.igutech.auto.redstates.GoToHubLow;
 import org.igutech.auto.redstates.GoToHubMiddle;
 import org.igutech.auto.roadrunner.SampleMecanumDrive;
 import org.igutech.auto.vision.BarcodePipeline;
@@ -45,8 +47,7 @@ public class RedAutoPath extends LinearOpMode {
         intake = new Intake(hardware, false);
         colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
-        hardware.getServos().get("deliveryServo").setPosition(0.73);
-        hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+        hardware.getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
 
         timerService.init();
         delivery.init();
@@ -79,7 +80,7 @@ public class RedAutoPath extends LinearOpMode {
 
         while (!opModeIsActive() && !isStopRequested()) {
             telemetry.addData("ready", "");
-            //pattern = pipeline.pattern;
+            pattern = pipeline.pattern;
             telemetry.addData("pattern", pattern);
             telemetry.update();
         }
@@ -87,11 +88,20 @@ public class RedAutoPath extends LinearOpMode {
 
         timerService.start();
         delivery.start();
-
+        hardware.getMotors().get("intakeLift").setPower(0.8);
+        timerService.registerSingleTimerEvent(500, () -> hardware.getMotors().get("intakeLift").setPower(0));
+        timerService.registerSingleTimerEvent(750, () -> {
+            hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+            hardware.getMotors().get("intakeLift").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            hardware.getMotors().get("intakeLift").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        });
         if (isStopRequested()) return;
         if (pattern == 2) {
             transitioner.init(new GoToHubMiddle(this, startPose));
-        } else {
+        } else if(pattern==1){
+            transitioner.init(new GoToHubLow(this, startPose));
+        }
+        else {
             transitioner.init(new GoToHubHigh(this, startPose));
         }
         drive.setPoseEstimate(startPose);

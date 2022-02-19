@@ -45,7 +45,7 @@ public class BlueAutoPath extends LinearOpMode {
         intake = new Intake(hardware, false);
         colorDetection = new ColorDetection(hardware);
         drive = new SampleMecanumDrive(hardwareMap);
-        hardware.getServos().get("deliveryServo").setPosition(0.73);
+        hardware.getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
         hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
 
         timerService.init();
@@ -79,7 +79,7 @@ public class BlueAutoPath extends LinearOpMode {
 
         while (!opModeIsActive() && !isStopRequested()) {
             telemetry.addData("ready", "");
-            //pattern = pipeline.pattern;
+            pattern = pipeline.pattern;
             telemetry.addData("pattern", pattern);
             telemetry.update();
         }

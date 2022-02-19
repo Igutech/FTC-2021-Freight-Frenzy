@@ -35,9 +35,16 @@ public class GoToHubMiddle extends State {
     public void onEntry(@Nullable State previousState) {
         redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
-        redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
-        redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
-        redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(redAutoBase.getPattern());
+        if(redAutoBase.getCycle()==0){
+            redAutoBase.getTimerService().registerSingleTimerEvent(1250,()->{
+                redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(redAutoBase.getPattern());
+            });
+        }else{
+            redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+            redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
+            redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(redAutoBase.getPattern());
+        }
+
         redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
 
     }

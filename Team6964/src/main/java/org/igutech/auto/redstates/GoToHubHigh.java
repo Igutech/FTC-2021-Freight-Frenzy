@@ -19,9 +19,9 @@ public class GoToHubHigh extends State {
 //    public static double x=-14.5;
 //    public static double y=-41;
 //    public static double theta=90;
-    public static double x=-6;
+    public static double x=-4;
     public static double y=-41;
-    public static double theta=115;
+    public static double theta=110;
     public GoToHubHigh(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
@@ -35,9 +35,17 @@ public class GoToHubHigh extends State {
     public void onEntry(@Nullable State previousState) {
         redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
-        redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
-        redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
-        redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(3);
+        if(redAutoBase.getCycle()==0){
+            redAutoBase.getTimerService().registerSingleTimerEvent(1250,()->{
+                redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(3);
+            });
+        }else{
+            redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
+            redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
+            redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(3);
+
+        }
+
         redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
 
     }

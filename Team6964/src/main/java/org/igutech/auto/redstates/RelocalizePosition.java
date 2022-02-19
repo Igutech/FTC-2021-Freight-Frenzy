@@ -24,14 +24,23 @@ public class RelocalizePosition extends State {
     @Override
     public void onEntry(@Nullable State previousState) {
         double pow = MagicValues.autoMotorPowerBackward;
-        redAutoBase.getDrive().setMotorPowers(pow,pow*2,pow,pow*2);
+        double strafePow = MagicValues.autoMotorPowerForward;
+        redAutoBase.getDrive().setMotorPowers(strafePow, -strafePow, strafePow, -strafePow);
+        redAutoBase.getTimerService().registerSingleTimerEvent(500,()->{
+            redAutoBase.getDrive().setMotorPowers(pow,pow*2,pow,pow*2);
+
+            redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL_REVERSE);
+            redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
+        });
+        redAutoBase.getTimerService().registerSingleTimerEvent(1000, () -> redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown));
+
     }
 
     @Override
     public void loop() {
         if (redAutoBase.getColorDetection().getHsvValues()[2] > 0.5) {
             redAutoBase.getDrive().setMotorPowers(0,0,0,0);
-            redAutoBase.getDrive().setPoseEstimate(new Pose2d(24, -63.5, 0));
+            redAutoBase.getDrive().setPoseEstimate(new Pose2d(23, -63.5, 0));
             done=true;
         }
     }
@@ -46,7 +55,7 @@ public class RelocalizePosition extends State {
     @Override
     public State getNextState() {
         if (done) {
-            return new ExitWareHouse(redAutoBase, new Pose2d(24, -63.5, 0));
+            return new ExitWareHouse(redAutoBase, new Pose2d(23, -63.5, 0));
         }
         return null;
     }
