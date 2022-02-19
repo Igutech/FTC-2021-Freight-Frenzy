@@ -1,4 +1,4 @@
-package org.igutech.auto;
+package org.igutech.auto.vision;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
