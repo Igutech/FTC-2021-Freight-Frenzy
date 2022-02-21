@@ -28,7 +28,7 @@ public class Delivery extends Module {
     public static double maxPower = 0.8;
     private boolean teleop;
     private int[] deliveryPosition;
-    private DeliveryState extendDeliveryState = DeliveryState.HIGH;
+    private DeliveryState extendDeliveryState = DeliveryState.OFF;
     public static DeliveryState currentDeliveryState = DeliveryState.OFF;
     private ButtonToggle deliveryToggle;
     private ButtonToggle holderToggle;

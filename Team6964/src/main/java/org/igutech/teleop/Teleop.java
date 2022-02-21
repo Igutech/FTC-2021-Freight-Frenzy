@@ -43,7 +43,7 @@ public class Teleop extends OpMode {
         modules.add(new DriveTrain());
         modules.add(new Delivery(hardware, timerService, true));
         modules.add(new Intake(hardware, true));
-        modules.add(new Spinner());
+        modules.add(new Spinner(hardware));
         modules.add(new IntakeDeliver());
     }
 

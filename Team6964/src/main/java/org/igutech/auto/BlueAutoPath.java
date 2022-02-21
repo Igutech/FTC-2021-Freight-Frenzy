@@ -32,7 +32,7 @@ public class BlueAutoPath extends LinearOpMode {
     private Intake intake;
     private ColorDetection colorDetection;
     private SampleMecanumDrive drive;
-    public static int pattern = 3;
+    public static int pattern = 2;
     public static Delivery.DeliveryState deliveryState = Delivery.DeliveryState.HIGH;
     private OpenCvCamera phoneCam;
     private Pose2d startPose = new Pose2d(10, 60, Math.toRadians(180));
@@ -79,7 +79,7 @@ public class BlueAutoPath extends LinearOpMode {
 
         while (!opModeIsActive() && !isStopRequested()) {
             telemetry.addData("ready", "");
-            pattern = pipeline.pattern;
+            //pattern = pipeline.pattern;
             telemetry.addData("pattern", pattern);
             telemetry.update();
         }

@@ -16,14 +16,15 @@ public class BlueGoToHubMiddle extends State {
     private org.igutech.auto.BlueAutoPath blueAutoPath;
     private Pose2d startPose;
     private TrajectorySequence goToHub;
-    public static double x = -5;
-    public static double y = 36;
-    public static double theta = 80;
+    public static double x = -6;
+    public static double y = 37;
+    public static double theta = 85;
 
     public BlueGoToHubMiddle(org.igutech.auto.BlueAutoPath blueAutoPath, Pose2d startPose) {
         this.blueAutoPath = blueAutoPath;
         this.startPose = startPose;
         goToHub = blueAutoPath.getDrive().trajectorySequenceBuilder(startPose)
+                .waitSeconds(0.5)
                 .lineToConstantHeading(new Vector2d(10, 55))
                 .lineToLinearHeading(new Pose2d(x, y, Math.toRadians(theta)))
                 .build();
@@ -35,7 +36,7 @@ public class BlueGoToHubMiddle extends State {
         blueAutoPath.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         blueAutoPath.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
         if(blueAutoPath.getCycle()==0){
-            blueAutoPath.getTimerService().registerSingleTimerEvent(1250,()->{
+            blueAutoPath.getTimerService().registerSingleTimerEvent(2000,()->{
                 blueAutoPath.getDelivery().setDeliveryStateBaseOnPattern(blueAutoPath.getPattern());
             });
         }else{

@@ -1,11 +1,13 @@
 package org.igutech.auto;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.igutech.auto.redstates.DuckHubHigh;
+import org.igutech.auto.redstates.DuckHubLower;
+import org.igutech.auto.redstates.DuckHubMiddle;
 import org.igutech.auto.redstates.GoToHubHigh;
 import org.igutech.auto.redstates.GoToHubLow;
 import org.igutech.auto.redstates.GoToHubMiddle;
@@ -25,8 +27,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import dev.raneri.statelib.StateLibrary;
 
 @Autonomous
-@Config
-public class RedAutoPath extends LinearOpMode {
+public class RedDuckAuto extends LinearOpMode {
     private Hardware hardware;
     private TimerService timerService;
     private Delivery delivery;
@@ -36,7 +37,7 @@ public class RedAutoPath extends LinearOpMode {
     public static int pattern = 3;
     public static Delivery.DeliveryState deliveryState = Delivery.DeliveryState.HIGH;
     private OpenCvCamera phoneCam;
-    private Pose2d startPose = new Pose2d(10, -60, Math.toRadians(0));
+    private Pose2d startPose = new Pose2d(-35, -60, Math.toRadians(0));
     private int cycle = 0;
 
     @Override
@@ -90,19 +91,22 @@ public class RedAutoPath extends LinearOpMode {
         delivery.start();
         hardware.getMotors().get("intakeLift").setPower(0.8);
         timerService.registerSingleTimerEvent(500, () -> hardware.getMotors().get("intakeLift").setPower(0));
-        timerService.registerSingleTimerEvent(750, () -> {
+        timerService.registerSingleTimerEvent(1000, () -> {
             hardware.getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
             hardware.getMotors().get("intakeLift").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             hardware.getMotors().get("intakeLift").setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         });
+        timerService.registerSingleTimerEvent(2000,()->{
+            if(pattern==3){
+                transitioner.init(new DuckHubHigh(this, startPose));
+            }else if(pattern==2){
+                transitioner.init(new DuckHubMiddle(this, startPose));
+            }else{
+                transitioner.init(new DuckHubLower(this,startPose));
+            }
+            delivery.setDeliveryStateBaseOnPattern(getPattern());
+        });
         if (isStopRequested()) return;
-        if (pattern == 2) {
-            transitioner.init(new GoToHubMiddle(this, startPose));
-        } else if (pattern == 1) {
-            transitioner.init(new GoToHubLow(this, startPose));
-        } else {
-            transitioner.init(new GoToHubHigh(this, startPose));
-        }
 
         drive.setPoseEstimate(startPose);
 
@@ -116,12 +120,9 @@ public class RedAutoPath extends LinearOpMode {
          */
         while (!isStopRequested() && opModeIsActive()) {
             delivery.loop();
-            try {
+            try{
                 transitioner.loop();
-
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
+            }catch (IllegalStateException e){}
             drive.update();
             timerService.loop();
             colorDetection.loop();

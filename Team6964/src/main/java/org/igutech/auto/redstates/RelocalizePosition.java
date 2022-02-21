@@ -25,7 +25,7 @@ public class RelocalizePosition extends State {
     public void onEntry(@Nullable State previousState) {
         double pow = MagicValues.autoMotorPowerBackward;
         double strafePow = MagicValues.autoMotorPowerForward;
-        redAutoBase.getDrive().setMotorPowers(strafePow, -strafePow, strafePow, -strafePow);
+        redAutoBase.getDrive().setMotorPowers(strafePow*2, -strafePow*2, strafePow*2, -strafePow*2);
         redAutoBase.getTimerService().registerSingleTimerEvent(500,()->{
             redAutoBase.getDrive().setMotorPowers(pow,pow*2,pow,pow*2);
 
@@ -54,6 +54,9 @@ public class RelocalizePosition extends State {
     @Nullable
     @Override
     public State getNextState() {
+        if(redAutoBase.getCycle()==2){
+            return null;
+        }
         if (done) {
             return new ExitWareHouse(redAutoBase, new Pose2d(23, -63.5, 0));
         }

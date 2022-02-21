@@ -29,7 +29,7 @@ public class BlueCollect extends State {
         blueAutoPath.getHardware().getMotors().get("intake").setPower(-1);
 
         double pow = MagicValues.autoMotorPowerForwardBlue;
-        blueAutoPath.getDrive().setMotorPowers(-pow, pow, -pow, pow);
+        blueAutoPath.getDrive().setMotorPowers(-pow*2, pow*2, -pow*2, pow*2);
         blueAutoPath.getTimerService().registerSingleTimerEvent(500, () -> blueAutoPath.getDrive().setMotorPowers(pow , pow*2, pow, pow*2));
 
         if(blueAutoPath.getCycle()==1){

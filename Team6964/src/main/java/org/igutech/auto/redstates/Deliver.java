@@ -22,9 +22,12 @@ public class Deliver extends State {
     @Override
     public void onEntry(@Nullable State previousState) {
         redAutoBase.addCycle();
-        redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoUp);
-        redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
-        redAutoBase.getTimerService().registerUniqueTimerEvent(500, "moveToWareHouse", () -> {
+        redAutoBase.getTimerService().registerSingleTimerEvent(500,()->{
+            redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoUp);
+            redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoPush);
+        });
+
+        redAutoBase.getTimerService().registerUniqueTimerEvent(1000, "moveToWareHouse", () -> {
             redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoUp);
             redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
             redAutoBase.getDelivery().setDeliveryStatus(false);

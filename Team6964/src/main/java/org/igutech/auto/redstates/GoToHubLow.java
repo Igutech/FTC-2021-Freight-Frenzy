@@ -18,13 +18,14 @@ public class GoToHubLow extends State {
     private Pose2d startPose;
     private TrajectorySequence goToHub;
     public static double x = -4;
-    public static double y = -44;
+    public static double y = -48;
     public static double theta = -75;
 
     public GoToHubLow(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
         goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
+                .waitSeconds(0.5)
                 .lineToConstantHeading(new Vector2d(10, -53))
                 .setReversed(true)
                 .lineToLinearHeading(new Pose2d(x, y, Math.toRadians(theta)))
@@ -36,7 +37,7 @@ public class GoToHubLow extends State {
         redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
         if(redAutoBase.getCycle()==0){
-            redAutoBase.getTimerService().registerSingleTimerEvent(1250,()->{
+            redAutoBase.getTimerService().registerSingleTimerEvent(2000,()->{
                 redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(redAutoBase.getPattern());
             });
         }else{
@@ -45,8 +46,7 @@ public class GoToHubLow extends State {
             redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(redAutoBase.getPattern());
         }
 
-        redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
-
+            redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
     }
 
     @Nullable

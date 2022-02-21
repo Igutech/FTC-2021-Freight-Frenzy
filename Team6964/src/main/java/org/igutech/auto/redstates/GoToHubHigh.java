@@ -22,11 +22,13 @@ public class GoToHubHigh extends State {
     public static double x=-4;
     public static double y=-41;
     public static double theta=110;
+    private boolean done = false;
     public GoToHubHigh(RedAutoPath redAutoBase, Pose2d startPose) {
         this.redAutoBase = redAutoBase;
         this.startPose = startPose;
         goToHub = redAutoBase.getDrive().trajectorySequenceBuilder(startPose)
                 .setReversed(true)
+                .waitSeconds(0.5)
                 .splineTo(new Vector2d(x, y), Math.toRadians(theta))
                 .build();
     }
@@ -36,16 +38,19 @@ public class GoToHubHigh extends State {
         redAutoBase.getIntake().setIntakeLiftState(Intake.IntakeLiftState.DOWN);
         redAutoBase.getIntake().setIntakeState(Intake.IntakeState.MANUAL);
         if(redAutoBase.getCycle()==0){
-            redAutoBase.getTimerService().registerSingleTimerEvent(1250,()->{
+            redAutoBase.getTimerService().registerSingleTimerEvent(2000,()->{
                 redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(3);
             });
+            redAutoBase.getTimerService().registerSingleTimerEvent(4000,()->{
+                done=true;
+            });
+
         }else{
             redAutoBase.getHardware().getServos().get("holderServo").setPosition(MagicValues.holderServoDown);
             redAutoBase.getHardware().getServos().get("deliveryServo").setPosition(MagicValues.deliverServoDown);
             redAutoBase.getDelivery().setDeliveryStateBaseOnPattern(3);
 
         }
-
         redAutoBase.getDrive().followTrajectorySequenceAsync(goToHub);
 
     }
@@ -53,9 +58,16 @@ public class GoToHubHigh extends State {
     @Nullable
     @Override
     public State getNextState() {
-        if (!redAutoBase.getDrive().isBusy()) {
-            return new Deliver(redAutoBase, goToHub.end());
+        if(redAutoBase.getCycle()==0){
+            if(done){
+                return new Deliver(redAutoBase, goToHub.end());
+            }
+        }else{
+            if (!redAutoBase.getDrive().isBusy()) {
+                return new Deliver(redAutoBase, goToHub.end());
+            }
         }
+
         return null;
     }
 }

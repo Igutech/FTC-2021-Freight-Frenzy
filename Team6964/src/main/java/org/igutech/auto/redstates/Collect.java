@@ -28,8 +28,8 @@ public class Collect extends State {
         redAutoBase.getHardware().getMotors().get("intake").setPower(-1);
 
         double pow = MagicValues.autoMotorPowerForward;
-        redAutoBase.getDrive().setMotorPowers(pow, -pow, pow, -pow);
-        redAutoBase.getTimerService().registerSingleTimerEvent(500, () -> redAutoBase.getDrive().setMotorPowers(pow * 2, pow, pow * 2, pow));
+        redAutoBase.getDrive().setMotorPowers(pow*2, -pow*2, pow*2, -pow*2);
+        redAutoBase.getTimerService().registerSingleTimerEvent(500, () -> redAutoBase.getDrive().setMotorPowers(pow * 2, pow*2, pow * 2, pow*2));
 
         if(redAutoBase.getCycle()==1){
             redAutoBase.getTimerService().registerSingleTimerEvent(500 + (int) MagicValues.collectDriveTimeFirst, () -> {
